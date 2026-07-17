@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Barlow:wght@0,400;0,500;0,600;0,700&display=swap" rel="stylesheet">
+<style>
+  doc-page:not(:defined){visibility:hidden}
+  h1,h2,h3{font-family:'Oswald',sans-serif;color:#0A1F5C;}
+  h1{font-size:30px;font-weight:700;letter-spacing:.5px;margin:0 0 4px;}
+  h2{font-size:19px;font-weight:600;letter-spacing:.5px;margin:26px 0 10px;padding-bottom:6px;border-bottom:2px solid #DA1E28;}
+  h3{font-size:15px;font-weight:600;margin:16px 0 6px;}
+  p,li{font-family:'Barlow',sans-serif;font-size:13.5px;line-height:1.6;color:#1c2333;}
+  li{margin-bottom:4px;}
+  table{width:100%;border-collapse:collapse;margin:8px 0 4px;font-family:'Barlow',sans-serif;}
+  th,td{border:1px solid #d9deeb;padding:7px 9px;font-size:12.5px;text-align:left;vertical-align:top;line-height:1.45;}
+  th{background:#eef1fb;color:#0A1F5C;font-weight:700;}
+  td code{background:#f4f6fb;padding:1px 5px;border-radius:4px;font-size:11.5px;color:#0A1F5C;}
+  .kept{break-inside:avoid;}
+  .tag{display:inline-block;background:#DA1E28;color:#fff;font-family:'Oswald';font-weight:600;font-size:11px;letter-spacing:1px;padding:3px 10px;border-radius:6px;}
+  .muted{color:#6b7599;font-size:12px;}
+  .callout{break-inside:avoid;background:#fff5f5;border:1px solid #f3d3d5;border-radius:10px;padding:12px 14px;margin:12px 0;}
+  .callout p{margin:0;font-size:12.5px;color:#8a1219;}
+</style>
+</helmet>
+<x-import component-from-global-scope="doc-page" from="./doc-page.js" size="letter" margin="0.7in" hint-size="100%,100%">
+
+<div style="display:flex;align-items:center;gap:14px;margin-bottom:6px;">
+  <img src="assets/logo-natacion.png" alt="U" style="width:52px;height:52px;object-fit:contain;flex:none;">
+  <div>
+    <span class="tag">DOCUMENTO DE HANDOFF</span>
+    <h1 style="margin-top:6px;">Natación Máster U. de Chile — App de Gestión Deportiva</h1>
+    <p class="muted">Especificación funcional y de datos para el equipo de desarrollo · Temporada 2026 · v1.0</p>
+  </div>
+</div>
+
+<h2>1. Resumen</h2>
+<p>Aplicación móvil (iOS/Android) con backend para gestionar el equipo máster de natación: entrenadores administran nadadores, entrenamientos, torneos y evaluaciones; los nadadores gestionan su perfil, confirman asistencia y siguen su progreso. Este documento traduce el prototipo de alta fidelidad en requisitos construibles.</p>
+<p><b>Stack objetivo:</b> React Native (móvil) · Node.js/Express (API) · Supabase (PostgreSQL + Auth). Responsive en teléfono, tablet y desktop.</p>
+
+<div class="callout"><p><b>Alcance del prototipo entregado:</b> el archivo <code style="background:#fff;">Natacion Master.dc.html</code> es la referencia visual y de comportamiento exacta. El estado es en memoria (no persiste); la seguridad y la base de datos están simuladas. Este documento define lo que el equipo debe implementar de verdad.</p></div>
+
+<h2>2. Roles</h2>
+<table class="kept">
+<thead><tr><th style="width:22%;">Rol</th><th>Capacidades</th></tr></thead>
+<tbody>
+<tr><td><b>Entrenador</b></td><td>Gestiona nadadores (alta, importación masiva, restauración de PIN, ver ficha completa incl. datos de salud). Escribe/programa entrenamientos en calendario. Administra torneos e inscripciones. Registra evaluaciones técnicas. Consulta reportes.</td></tr>
+<tr><td><b>Nadador</b></td><td>Completa y edita su perfil, cambia su PIN, confirma asistencia a entrenamientos (grupo AM/PM), registra sus tiempos y parciales, ve su progreso/evaluaciones, marca participación en torneos, destaca sus mejores marcas.</td></tr>
+</tbody>
+</table>
+
+<h2>3. Autenticación</h2>
+<ul>
+<li><b>Login único:</b> identidad (RUT o nombre) <b>+ PIN de 4 dígitos</b>; el sistema enruta según rol.</li>
+<li>El PIN <b>nunca</b> se guarda en texto plano — hash + salt en el backend.</li>
+<li>PIN de 4 dígitos = solo 10.000 combinaciones: obligatorio <b>rate-limiting y bloqueo temporal</b> tras N intentos fallidos.</li>
+<li>El entrenador da de alta al nadador con PIN temporal; el nadador debe <b>cambiarlo en el primer ingreso</b> (flag <code>pin_temporal</code>).</li>
+<li>Recuperación de PIN: el nadador solicita al entrenador, que lo restaura (genera nuevo temporal). Toda restauración queda <b>auditada</b>.</li>
+</ul>
+
+<h2>4. Pantallas — Entrenador</h2>
+<table class="kept">
+<thead><tr><th style="width:20%;">Pantalla</th><th>Contenido y acciones</th></tr></thead>
+<tbody>
+<tr><td><b>Inicio</b></td><td>Próxima sesión, KPIs (nadadores, asistencia, torneos activos), gráfico de volumen semanal, y <b>confirmaciones del día divididas por grupo AM y PM</b>.</td></tr>
+<tr><td><b>Nadadores</b></td><td>Buscar, listar, agregar. <b>Importar base de datos</b> (pegar <code>Nombre, RUT</code> → genera PIN automático por nadador). Abrir ficha.</td></tr>
+<tr><td><b>Ficha nadador</b></td><td>Gestión de PIN (ver/ocultar, restaurar). Métricas (PB, asistencia, mejora). Ficha completa. Prescripción médica marcada confidencial. Gráfico de evolución por prueba (idéntico al del nadador).</td></tr>
+<tr><td><b>Sesiones</b></td><td><b>Calendario mensual</b> con marca AM (rojo)/PM (azul). Crear entrenamiento completo: día, distancia, enfoque, grupo (AM/PM/Ambos) y plan serie por serie. Filtrar por día.</td></tr>
+<tr><td><b>Evaluar</b></td><td>Lista de nadadores con puntaje promedio y última fecha. Detalle con <b>radar técnico</b> (Libre, Espalda, Pecho, Mariposa, Virajes, Salidas), promedio /10, observaciones e historial. Nueva evaluación con sliders 1–10.</td></tr>
+<tr><td><b>Torneos</b></td><td>Agregar/quitar. Inscribir nadadores por prueba. Reporte por torneo: total de participantes, inscripciones a pruebas, lista con categoría, y <b>reporte general</b> (total de torneos y participación acumulada por nadador).</td></tr>
+<tr><td><b>Reportes</b></td><td>Volumen, asistencia por semana, resumen general de torneos por nadador, y acceso a reportes por torneo. Exportar PDF.</td></tr>
+</tbody>
+</table>
+
+<h2>5. Pantallas — Nadador</h2>
+<table class="kept">
+<thead><tr><th style="width:20%;">Pantalla</th><th>Contenido y acciones</th></tr></thead>
+<tbody>
+<tr><td><b>Inicio</b></td><td>Próximo entrenamiento (acceso a confirmar), asistencia, PBs del ciclo, próximo torneo, y <b>3 mejores marcas destacadas</b> (elegibles por el nadador).</td></tr>
+<tr><td><b>Sesiones</b></td><td>Entrenamientos asignados con estado de confirmación. Detalle con set principal y botones <b>Confirmar / No puedo</b>.</td></tr>
+<tr><td><b>Progreso</b></td><td>Gráfico de <b>evolución por prueba</b> (selector de prueba). Mi evaluación técnica (radar, solo lectura). Registrar marca con <b>formato estándar 00:00.0</b> y parciales cada 25/50 m. Tocar una marca abre su gráfico de evolución e historial con parciales.</td></tr>
+<tr><td><b>Torneos</b></td><td>Mis torneos; marcar participación (pasados y presentes).</td></tr>
+<tr><td><b>Perfil</b></td><td>Editar datos, grupo AM/PM, cambiar PIN. Campos en §6.</td></tr>
+</tbody>
+</table>
+
+<h2>6. Modelo de datos</h2>
+<p>Entidades núcleo (PostgreSQL/Supabase). PK <code>id</code> en todas salvo indicado.</p>
+<table>
+<thead><tr><th style="width:24%;">Tabla</th><th>Campos clave</th></tr></thead>
+<tbody>
+<tr><td><code>users</code></td><td><code>rol</code> (coach|swimmer), <code>rut</code>, <code>nombre</code>, <code>pin_hash</code>, <code>pin_temporal</code> (bool), <code>activo</code></td></tr>
+<tr><td><code>swimmer_profiles</code></td><td><code>user_id</code> (FK), <code>fecha_nacimiento</code>, <code>email</code>, <code>telefono</code>, <code>estilo_1</code>, <code>estilo_2</code>, <code>prueba_fav_1</code>, <code>prueba_fav_2</code>, <code>grupo</code> (AM|PM), <code>prescripcion_medica</code>, <code>contacto_emergencia</code>. <span class="muted">edad y categoría son <b>calculadas</b>, no columnas.</span></td></tr>
+<tr><td><code>trainings</code></td><td><code>fecha</code>, <code>hora</code>, <code>foco</code>, <code>distancia_total</code>, <code>grupo</code> (AM|PM|Ambos), <code>sets</code> (jsonb / texto por línea), <code>creado_por</code></td></tr>
+<tr><td><code>training_attendance</code></td><td><code>training_id</code> (FK), <code>swimmer_id</code> (FK), <code>estado</code> (confirmado|declinado|sin_responder|asistió|faltó), <code>confirmado_en</code></td></tr>
+<tr><td><code>tournaments</code></td><td><code>nombre</code>, <code>fecha</code>, <code>lugar</code>, <code>estado</code></td></tr>
+<tr><td><code>tournament_entries</code></td><td><code>tournament_id</code> (FK), <code>swimmer_id</code> (FK), <code>pruebas</code> (array), <code>estado</code> (inscrito|participó)</td></tr>
+<tr><td><code>results</code></td><td><code>swimmer_id</code> (FK), <code>prueba</code>, <code>tiempo_centesimas</code> (int), <code>parciales</code> (array), <code>split_dist</code>, <code>fecha</code>, <code>es_pb</code> (calculado)</td></tr>
+<tr><td><code>evaluations</code></td><td><code>swimmer_id</code> (FK), <code>fecha</code>, <code>scores</code> (jsonb: {libre,espalda,pecho,mariposa,virajes,salidas} 1–10), <code>nota</code>, <code>creado_por</code></td></tr>
+<tr><td><code>audit_log</code></td><td><code>actor_id</code>, <code>accion</code>, <code>entidad</code>, <code>detalle</code>, <code>fecha</code> — para PIN restaurado y ediciones de datos de salud</td></tr>
+</tbody>
+</table>
+
+<h2>7. Reglas de negocio</h2>
+<ul>
+<li><b>Edad y categoría automáticas:</b> función pura desde <code>fecha_nacimiento</code>. Congelar la regla de banda: categoría máster por edad <b>al 31 de diciembre del año en curso</b> (confirmar con la federación). Bandas de 5 años (Máster A 30–34, B 35–39, …).</li>
+<li><b>Validación de RUT:</b> verificar dígito verificador (módulo 11) en frontend y backend.</li>
+<li><b>Tiempos:</b> almacenar en centésimas (int) para ordenar/comparar; presentar como <code>m:ss.d</code>. PB = mínimo por prueba y nadador.</li>
+<li><b>Confirmación de asistencia por grupo:</b> el nadador solo ve/confirma sesiones de su grupo (AM/PM); sesiones "Ambos" aplican a todos.</li>
+<li><b>Reporte de participantes:</b> derivado de <code>tournament_entries</code> (conteo + join a perfiles). "Torneos por nadador" = conteo de entries por swimmer.</li>
+<li><b>Promedio de evaluación:</b> media de los 6 criterios; "última evaluación" ordenada por <b>fecha real</b>, no por id.</li>
+</ul>
+
+<h2>8. Seguridad y datos sensibles</h2>
+<ul>
+<li><b>Ley 19.628</b> (datos personales, Chile) y su reforma de datos de salud: la prescripción médica y el contacto de emergencia son <b>datos sensibles</b> — consentimiento explícito, acceso restringido (solo el propio nadador y su entrenador), nunca expuestos en reportes de torneo.</li>
+<li><b>Autorización por rol en el backend</b> (RLS de Supabase + checks en la API), no solo ocultar botones: un nadador no debe poder invocar endpoints de entrenador.</li>
+<li>RUT es dato personal e identificador nacional; tratarlo como tal, no como llave pública.</li>
+<li>Auditar restauraciones de PIN y ediciones de datos de salud.</li>
+</ul>
+
+<h2>9. Calidad para producción</h2>
+<ul>
+<li><b>Validación</b> en frontend y backend (RUT, email, teléfono, PIN 4 dígitos, formato de tiempo, rangos de score).</li>
+<li><b>Tests:</b> unitarios (cálculo de edad/categoría, validación RUT, PB, promedios) e integración de flujos críticos (login/PIN, alta+importación, confirmación de asistencia, inscripción a torneo, registro de evaluación).</li>
+<li><b>Manejo de errores</b> robusto y estados vacíos en cada pantalla.</li>
+<li><b>Documentación:</b> README con variables de entorno, instalación, setup de Supabase (migraciones + seeds) y documentación de la API.</li>
+</ul>
+
+<h2>10. Preguntas abiertas a confirmar</h2>
+<ul>
+<li>Regla exacta de categoría (fecha de corte y bandas) según la federación.</li>
+<li>¿El nadador puede editar participación en torneos pasados libremente, o el entrenador la confirma?</li>
+<li>Criterios definitivos de la rúbrica de evaluación (¿agregar resistencia/fuerza/flexibilidad?).</li>
+<li>Idioma/zona horaria, política de retención de datos de salud.</li>
+</ul>
+
+<p class="muted" style="margin-top:24px;">Fin del documento · Referencia visual: <code>Natacion Master.dc.html</code></p>
+
+</x-import>
+</x-dc>
+</body>
+</html>

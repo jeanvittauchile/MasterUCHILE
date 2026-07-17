@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Barlow:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  ::-webkit-scrollbar { width: 0; height: 0; }
+  .scr::-webkit-scrollbar { display: none; }
+  a { color: #1E52C7; }
+  a:hover { color: #0A1F5C; }
+  input, select { font-family: 'Barlow', sans-serif; }
+</style>
+</helmet>
+<div style="min-height:100vh;background:radial-gradient(circle at 50% 0%, #17244d 0%, #0a1024 60%, #070b1a 100%);font-family:'Barlow',sans-serif;display:flex;flex-direction:column;align-items:center;padding:28px 16px 56px;gap:18px;">
+
+  <div style="display:flex;flex-direction:column;align-items:center;gap:10px;">
+    <span style="font-family:'Oswald';font-weight:600;letter-spacing:2px;font-size:13px;color:#8fa0d6;">NATACIÓN MÁSTER · U. DE CHILE</span>
+    <div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:5px;">
+      <span style="font-size:11px;color:#8fa0d6;font-weight:600;letter-spacing:.5px;padding-left:8px;">DEMO:</span>
+      <button onClick="{{ demoCoach }}" style="border:0;cursor:pointer;font-family:'Oswald';font-weight:600;font-size:12px;padding:7px 16px;border-radius:999px;background:{{ roleCoachBg }};color:{{ roleCoachColor }};">ENTRENADOR</button>
+      <button onClick="{{ demoSwimmer }}" style="border:0;cursor:pointer;font-family:'Oswald';font-weight:600;font-size:12px;padding:7px 16px;border-radius:999px;background:{{ roleSwimBg }};color:{{ roleSwimColor }};">NADADOR</button>
+      <button onClick="{{ goLogin }}" style="border:0;cursor:pointer;font-family:'Oswald';font-weight:600;font-size:12px;padding:7px 16px;border-radius:999px;background:{{ roleLoginBg }};color:{{ roleLoginColor }};">LOGIN</button>
+    </div>
+  </div>
+
+  <div style="width:392px;height:844px;background:#0a0d18;border-radius:52px;padding:11px;box-shadow:0 40px 80px rgba(0,0,0,.55), inset 0 0 0 2px #2a2f45;flex:none;">
+    <div style="position:relative;width:100%;height:100%;background:#EEF1F8;border-radius:42px;overflow:hidden;display:flex;flex-direction:column;">
+
+      <div style="position:absolute;top:0;left:0;right:0;height:52px;z-index:20;display:flex;align-items:flex-end;justify-content:space-between;padding:0 30px 8px;color:{{ statusColor }};font-family:'Barlow';font-weight:600;font-size:15px;pointer-events:none;">
+        <span>9:41</span>
+        <div style="position:absolute;left:50%;top:11px;transform:translateX(-50%);width:112px;height:32px;background:#0a0d18;border-radius:20px;"></div>
+        <span style="letter-spacing:1px;">5G ▪ 100%</span>
+      </div>
+
+      <!-- ================= LOGIN ================= -->
+      <sc-if value="{{ sLogin }}" hint-placeholder-val="{{ true }}">
+        <div style="flex:1;background:linear-gradient(160deg,#0A1F5C 0%,#0b1330 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 30px;">
+          <img src="assets/logo-natacion.png" alt="U" style="width:96px;height:96px;object-fit:contain;background:#fff;border-radius:22px;padding:8px;box-shadow:0 12px 30px rgba(0,0,0,.35);">
+          <div style="font-family:'Oswald';font-weight:700;font-size:26px;color:#fff;letter-spacing:.5px;margin-top:22px;text-align:center;line-height:1.05;">NATACIÓN MÁSTER</div>
+          <div style="font-size:13px;color:#a9bbee;margin-top:4px;">Universidad de Chile</div>
+
+          <div style="width:100%;background:#fff;border-radius:22px;padding:22px;margin-top:32px;box-shadow:0 20px 50px rgba(0,0,0,.3);">
+            <div style="font-size:12px;color:#6b7599;font-weight:600;letter-spacing:.5px;">IDENTIFÍCATE</div>
+            <input value="{{ loginId }}" onInput="{{ onLoginId }}" placeholder="RUT o nombre" style="width:100%;margin-top:8px;padding:13px 14px;border:1px solid #dbe1f0;border-radius:12px;font-size:15px;color:#0A1F5C;">
+            <div style="font-size:12px;color:#6b7599;font-weight:600;letter-spacing:.5px;margin-top:16px;">PIN DE 4 DÍGITOS</div>
+            <div style="display:flex;gap:10px;justify-content:center;margin-top:10px;">
+              <sc-for list="{{ pinDots }}" as="d" hint-placeholder-count="4">
+                <div style="width:52px;height:60px;border-radius:14px;border:2px solid {{ d.border }};background:{{ d.bg }};display:flex;align-items:center;justify-content:center;font-family:'Oswald';font-weight:700;font-size:26px;color:#0A1F5C;">{{ d.ch }}</div>
+              </sc-for>
+            </div>
+            <sc-if value="{{ loginError }}" hint-placeholder-val="{{ false }}">
+              <div style="color:#DA1E28;font-size:12.5px;text-align:center;margin-top:10px;font-weight:600;">PIN incompleto — ingresa 4 dígitos</div>
+            </sc-if>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;margin-top:20px;">
+            <sc-for list="{{ keypad }}" as="k" hint-placeholder-count="12">
+              <button onClick="{{ k.onClick }}" style="border:0;cursor:pointer;height:58px;border-radius:16px;background:{{ k.bg }};color:{{ k.color }};font-family:'Oswald';font-weight:600;font-size:23px;">{{ k.label }}</button>
+            </sc-for>
+          </div>
+          <div style="font-size:12px;color:#8fa0d6;margin-top:18px;text-align:center;">¿Olvidaste tu PIN? Contacta a tu entrenador para restaurarlo.</div>
+        </div>
+      </sc-if>
+
+      <!-- ================= APP ================= -->
+      <sc-if value="{{ sApp }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;height:100%;">
+      <div style="background:linear-gradient(120deg,#0A1F5C 0%,#123a8f 100%);padding:56px 20px 16px;color:#fff;flex:none;box-shadow:0 4px 18px rgba(10,31,92,.35);z-index:10;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <sc-if value="{{ showBack }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ back }}" style="border:0;background:rgba(255,255,255,.14);color:#fff;width:36px;height:36px;border-radius:12px;cursor:pointer;font-size:18px;line-height:1;flex:none;">‹</button>
+          </sc-if>
+          <img src="assets/logo-natacion.png" alt="U" style="width:40px;height:40px;object-fit:contain;border-radius:9px;background:#fff;padding:3px;flex:none;">
+          <div style="flex:1;min-width:0;">
+            <div style="font-family:'Oswald';font-weight:700;font-size:23px;line-height:1;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ headerTitle }}</div>
+            <div style="font-size:12px;color:#a9bbee;margin-top:3px;font-weight:500;">Equipo Máster · Temporada 2026</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="scr" style="flex:1;overflow-y:auto;overflow-x:hidden;padding:18px 16px 104px;">
+
+        <!-- COACH · INICIO -->
+        <sc-if value="{{ sCoachInicio }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div>
+              <div style="font-family:'Oswald';font-weight:600;font-size:26px;color:#0A1F5C;line-height:1;">Hola, Coach Andrés</div>
+              <div style="color:#6b7599;font-size:14px;margin-top:4px;">Miércoles 16 de julio · 6 nadadores activos</div>
+            </div>
+            <div style="background:linear-gradient(115deg,#DA1E28,#a3141c);border-radius:20px;padding:18px 20px;color:#fff;box-shadow:0 12px 26px rgba(218,30,40,.28);">
+              <div style="font-size:12px;letter-spacing:1.5px;font-weight:600;opacity:.85;">PRÓXIMA SESIÓN · HOY 07:00</div>
+              <div style="font-family:'Oswald';font-weight:700;font-size:24px;margin:6px 0 2px;">Velocidad · Sprint</div>
+              <div style="font-size:14px;opacity:.9;">3.200 m · Máster A/B · Piscina UChile</div>
+              <div style="display:flex;gap:8px;margin-top:14px;">
+                <div style="background:rgba(255,255,255,.18);border-radius:10px;padding:6px 12px;font-size:13px;font-weight:600;">14 confirmados</div>
+                <div style="background:rgba(255,255,255,.18);border-radius:10px;padding:6px 12px;font-size:13px;font-weight:600;">2 sin responder</div>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+              <div style="background:#fff;border-radius:16px;padding:14px 12px;box-shadow:0 4px 14px rgba(16,31,92,.06);">
+                <div style="font-family:'Oswald';font-weight:700;font-size:26px;color:#0A1F5C;line-height:1;">6</div>
+                <div style="font-size:12px;color:#6b7599;margin-top:4px;">Nadadores</div>
+              </div>
+              <div style="background:#fff;border-radius:16px;padding:14px 12px;box-shadow:0 4px 14px rgba(16,31,92,.06);">
+                <div style="font-family:'Oswald';font-weight:700;font-size:26px;color:#1E9E5A;line-height:1;">89%</div>
+                <div style="font-size:12px;color:#6b7599;margin-top:4px;">Asistencia</div>
+              </div>
+              <div style="background:#fff;border-radius:16px;padding:14px 12px;box-shadow:0 4px 14px rgba(16,31,92,.06);">
+                <div style="font-family:'Oswald';font-weight:700;font-size:26px;color:#DA1E28;line-height:1;">2</div>
+                <div style="font-size:12px;color:#6b7599;margin-top:4px;">Torneos activos</div>
+              </div>
+            </div>
+            <div style="background:#fff;border-radius:20px;padding:18px;box-shadow:0 4px 14px rgba(16,31,92,.06);">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;">
+                <div style="font-family:'Oswald';font-weight:600;font-size:16px;color:#0A1F5C;letter-spacing:.5px;">VOLUMEN SEMANAL</div>
+                <div style="font-size:13px;color:#1E9E5A;font-weight:600;">↑ 12%</div>
+              </div>
+              <div style="height:132px;margin-top:8px;">{{ volumeChart }}</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div style="font-family:'Oswald';font-weight:600;font-size:16px;color:#0A1F5C;letter-spacing:.5px;">CONFIRMACIONES DE HOY</div>
+              <span style="font-size:12px;color:#6b7599;font-weight:600;">Grupo {{ grpTotal }}</span>
+            </div>
+            <sc-for list="{{ confGroups }}" as="g" hint-placeholder-count="2">
+              <div style="margin-bottom:6px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                  <span style="font-family:'Oswald';font-weight:700;font-size:13px;color:#fff;background:{{ g.tone }};padding:4px 12px;border-radius:8px;letter-spacing:1px;">{{ g.label }}</span>
+                  <span style="font-size:12px;color:#6b7599;">{{ g.sub }}</span>
+                </div>
+                <sc-for list="{{ g.members }}" as="s" hint-placeholder-count="3">
+                  <div style="background:#fff;border-radius:14px;padding:11px 14px;box-shadow:0 4px 14px rgba(16,31,92,.06);display:flex;align-items:center;gap:12px;margin-bottom:9px;">
+                    <div style="width:38px;height:38px;border-radius:11px;background:{{ s.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Oswald';font-weight:700;font-size:14px;flex:none;">{{ s.ini }}</div>
+                    <div style="flex:1;font-weight:600;color:#0A1F5C;font-size:14.5px;">{{ s.name }}</div>
+                    <span style="font-size:11.5px;font-weight:700;padding:4px 11px;border-radius:8px;color:#fff;background:{{ s.confColor }};">{{ s.confLabel }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- COACH · NADADORES -->
+        <sc-if value="{{ sCoachNad }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div style="display:flex;align-items:center;background:#fff;border-radius:14px;padding:11px 14px;box-shadow:0 4px 14px rgba(16,31,92,.06);gap:10px;">
+              <span style="color:#9AA4C0;">🔍</span>
+              <span style="color:#9AA4C0;font-size:14px;">Buscar nadador…</span>
+            </div>
+            <button onClick="{{ toggleImport }}" style="border:0;cursor:pointer;width:100%;background:#0A1F5C;color:#fff;border-radius:14px;padding:13px;font-family:'Oswald';font-weight:600;font-size:14px;letter-spacing:.5px;box-shadow:0 8px 20px rgba(10,31,92,.25);">⇪ IMPORTAR BASE DE DATOS</button>
+            <sc-if value="{{ showImport }}" hint-placeholder-val="{{ false }}">
+              <div style="background:#fff;border-radius:18px;padding:16px;box-shadow:0 8px 24px rgba(16,31,92,.1);display:flex;flex-direction:column;gap:12px;">
+                <div style="font-family:'Oswald';font-weight:600;color:#0A1F5C;font-size:15px;">Importar nadadores</div>
+                <div style="font-size:12.5px;color:#6b7599;line-height:1.4;">Pega una línea por nadador con <b>Nombre, RUT</b>. Se genera un PIN de 4 dígitos automáticamente; el nadador completa su perfil y puede cambiar su PIN al ingresar.</div>
+                <textarea value="{{ importText }}" onInput="{{ onImportText }}" rows="5" placeholder="Juan González, 12.345.678-9&#10;Tomás Herrera, 15.111.222-3" style="width:100%;padding:10px 12px;border:1px solid #dbe1f0;border-radius:10px;font-size:14px;color:#0A1F5C;font-family:'Barlow';line-height:1.5;resize:vertical;"></textarea>
+                <button onClick="{{ runImport }}" style="border:0;cursor:pointer;background:#DA1E28;color:#fff;border-radius:10px;padding:12px;font-family:'Oswald';font-weight:600;letter-spacing:.5px;">IMPORTAR Y GENERAR PINS</button>
+                <sc-if value="{{ importResult }}" hint-placeholder-val="{{ false }}">
+                  <div style="background:#eaf6ef;border:1px solid #bfe6cf;border-radius:12px;padding:12px;">
+                    <div style="font-size:12px;color:#1E9E5A;font-weight:700;letter-spacing:.5px;margin-bottom:8px;">✓ {{ importCount }} NADADORES IMPORTADOS · PINS GENERADOS</div>
+                    <sc-for list="{{ importPins }}" as="p" hint-placeholder-count="2">
+                      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #d6ecdf;">
+                        <span style="font-size:13px;color:#0A1F5C;font-weight:600;">{{ p.name }}</span>
+                        <span style="font-family:'Oswald';font-weight:700;font-size:15px;color:#DA1E28;letter-spacing:2px;">{{ p.pin }}</span>
+                      </div>
+                    </sc-for>
+                    <div style="font-size:11px;color:#6b7599;margin-top:8px;">Comparte cada PIN con su nadador. Es temporal: deberá cambiarlo en el primer ingreso.</div>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-if>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div style="font-size:13px;color:#6b7599;">{{ swimmerCount }} nadadores</div>
+              <div style="font-family:'Oswald';font-weight:600;font-size:13px;color:#1E52C7;">+ AGREGAR</div>
+            </div>
+            <sc-for list="{{ swimmers }}" as="s" hint-placeholder-count="6">
+              <div onClick="{{ s.onClickOpen }}" style="background:#fff;border-radius:16px;padding:13px 14px;box-shadow:0 4px 14px rgba(16,31,92,.06);display:flex;align-items:center;gap:13px;cursor:pointer;">
+                <div style="width:46px;height:46px;border-radius:14px;background:{{ s.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Oswald';font-weight:700;font-size:17px;flex:none;">{{ s.ini }}</div>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-weight:700;color:#0A1F5C;font-size:15.5px;">{{ s.name }}</div>
+                  <div style="font-size:12.5px;color:#6b7599;">{{ s.cat }}</div>
+                </div>
+                <div style="text-align:right;">
+                  <sc-if value="{{ s.pending }}" hint-placeholder-val="{{ false }}">
+                    <span style="font-size:10.5px;font-weight:700;padding:4px 9px;border-radius:8px;color:#DA1E28;background:#fff5f5;">Perfil pendiente</span>
+                  </sc-if>
+                  <sc-if value="{{ s.notPending }}" hint-placeholder-val="{{ true }}">
+                    <div style="font-family:'Oswald';font-weight:700;color:#0A1F5C;font-size:16px;">{{ s.pb }}</div>
+                    <div style="font-size:11px;color:#1E9E5A;font-weight:600;">{{ s.delta }}</div>
+                  </sc-if>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- SWIMMER DETAIL (coach) -->
+        <sc-if value="{{ sSwimmerDetail }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div style="display:flex;align-items:center;gap:14px;background:#fff;border-radius:20px;padding:18px;box-shadow:0 4px 14px rgba(16,31,92,.06);">
+              <div style="width:64px;height:64px;border-radius:18px;background:{{ sel.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Oswald';font-weight:700;font-size:24px;flex:none;">{{ sel.ini }}</div>
+              <div>
+                <div style="font-family:'Oswald';font-weight:700;font-size:21px;color:#0A1F5C;line-height:1;">{{ sel.name }}</div>
+                <div style="font-size:13px;color:#6b7599;margin-top:5px;">{{ sel.cat }} · {{ sel.age }} años</div>
+              </div>
+            </div>
+
+            <!-- PIN management -->
+            <div style="background:#0A1F5C;border-radius:18px;padding:16px 18px;color:#fff;">
+              <div style="font-size:11px;letter-spacing:1.5px;opacity:.8;font-weight:600;">PIN DE INGRESO</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
+                <div style="font-family:'Oswald';font-weight:700;font-size:30px;letter-spacing:6px;">{{ sel.pinDisplay }}</div>
+                <div style="display:flex;gap:8px;">
+                  <button onClick="{{ togglePin }}" style="border:1px solid rgba(255,255,255,.3);background:transparent;color:#fff;border-radius:10px;padding:8px 12px;font-family:'Oswald';font-weight:600;font-size:12px;cursor:pointer;">{{ pinToggleLabel }}</button>
+                  <button onClick="{{ restorePin }}" style="border:0;background:#DA1E28;color:#fff;border-radius:10px;padding:8px 12px;font-family:'Oswald';font-weight:600;font-size:12px;cursor:pointer;">RESTAURAR</button>
+                </div>
+              </div>
+              <sc-if value="{{ sel.pinRestored }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top:10px;font-size:12.5px;background:rgba(255,255,255,.14);border-radius:10px;padding:8px 12px;">✓ PIN temporal generado. El nadador deberá cambiarlo en su próximo ingreso.</div>
+              </sc-if>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+              <div style="background:#fff;border-radius:16px;padding:14px 10px;text-align:center;box-shadow:0 4px 14px rgba(16,31,92,.06);">
+                <div style="font-family:'Oswald';font-weight:700;font-size:20px;color:#0A1F5C;">{{ sel.pb }}</div>
+                <div style="font-size:11px;color:#6b7599;margin-top:3px;">PB {{ sel.pbEv }}</div>
+              </div>
+              <div style="background:#fff;border-radius:16px;padding:14px 10px;text-align:center;box-shadow:0 4px 14px rgba(16,31,92,.06);">
+                <div style="font-family:'Oswald';font-weight:700;font-size:20px;color:#1E9E5A;">{{ sel.att }}%</div>
+                <div style="font-size:11px;color:#6b7599;margin-top:3px;">Asistencia</div>
+              </div>
+              <div style="background:#fff;border-radius:16px;padding:14px 10px;text-align:center;box-shadow:0 4px 14px rgba(16,31,92,.06);">
+                <div style="font-family:'Oswald';font-weight:700;font-size:20px;color:#DA1E28;">{{ sel.delta }}</div>
+                <div style="font-size:11px;color:#6b7599;margin-top:3px;">Mejora 6 sem</div>
+              </div>
+            </div>
+
+            <!-- data / ficha -->
+            <div style="background:#fff;border-radius:20px;padding:18px;box-shadow:0 4px 14px rgba(16,31,92,.06);">
+              <div style="font-family:'Oswald';font-weight:600;font-size:16px;color:#0A1F5C;letter-spacing:.5px;margin-bottom:12px;">FICHA DEL NADADOR</div>
+              <sc-for list="{{ sel.fichaRows }}" as="r" hint-placeholder-count="6">
+                <div style="display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #f0f2f8;">
+                  <span style="font-size:13px;color:#6b7599;">{{ r.k }}</span>
+                  <span style="font-size:13px;color:#0A1F5C;font-weight:600;text-align:right;">{{ r.v }}</span>
+                </div>
+              </sc-for>
+              <div style="margin-top:12px;background:#fff5f5;border:1px solid #f3d3d5;border-radius:12px;padding:11px 13px;">
+                <div style="font-size:11px;color:#DA1E28;font-weight:700;letter-spacing:.5px;">⚕ PRESCRIPCIÓN MÉDICA · CONFIDENCIAL</div>
+                <div style="font-size:13px;color:#334;margin-top:4px;">{{ sel.medical }}</div>
+              </div>
+            </div>
+
+            <div style="background:#fff;border-radius:20px;padding:18px;box-shadow:0 4px 14px rgba(16,31,92,.06);">
+              <div style="font-family:'Oswald';font-weight:600;font-size:16px;color:#0A1F5C;letter-spacing:.5px;">EVOLUCIÓN POR PRUEBA (seg)</div>
+              <div style="font-size:12px;color:#9AA4C0;margin-bottom:10px;">▼ El tiempo baja = mejora</div>
+              <div style="display:flex;gap:7px;overflow-x:auto;padding-bottom:8px;margin-bottom:4px;">
+                <sc-for list="{{ progChips }}" as="c" hint-placeholder-count="4">
+                  <button onClick="{{ c.onPick }}" style="flex:none;border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.color }};border-radius:999px;padding:6px 13px;font-size:12px;font-weight:600;font-family:'Barlow';cursor:pointer;white-space:nowrap;">{{ c.label }}</button>
+                </sc-for>
+              </div>
+              <div style="height:132px;">{{ myProgressChart }}</div>
+              <div style="font-size:12px;color:#6b7599;margin-top:6px;text-align:center;">{{ progSubtitle }}</div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- COACH · ENTRENAMIENTOS -->
+        <sc-if value="{{ sCoachEnt }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <button onClick="{{ toggleSessForm }}" style="border:0;cursor:pointer;width:100%;background:#0A1F5C;color:#fff;border-radius:14px;padding:14px;font-family:'Oswald';font-weight:600;font-size:15px;letter-spacing:.5px;box-shadow:0 8px 20px rgba(10,31,92,.25);">+ NUEVA SESIÓN</button>
+            <sc-if value="{{ showSessForm }}" hint-placeholder-val="{{ false }}">
+              <div style="background:#fff;border-radius:18px;padding:16px;box-shadow:0 8px 24px rgba(16,31,92,.1);display:flex;flex-direction:column;gap:12px;">
+                <div style="font-family:'Oswald';font-weight:600;color:#0A1F5C;font-size:15px;">Escribir entrenamiento completo</div>
+                <div style="display:flex;gap:10px;">
+                  <div style="flex:1;"><label style="font-size:12px;color:#6b7599;">Día</label><input value="{{ ns.day }}" onInput="{{ onNsDay }}" style="width:100%;margin-top:4px;padding:10px 12px;border:1px solid #dbe1f0;border-radius:10px;font-size:14px;color:#0A1F5C;"></div>
+                  <div style="flex:1;"><label style="font-size:12px;color:#6b7599;">Distancia (m)</label><input value="{{ ns.dist }}" onInput="{{ onNsDist }}" style="width:100%;margin-top:4px;padding:10px 12px;border:1px solid #dbe1f0;border-radius:10px;font-size:14px;color:#0A1F5C;"></div>
+                </div>
+                <div><label style="font-size:12px;color:#6b7599;">Enfoque</label><input value="{{ ns.focus }}" onInput="{{ onNsFocus }}" style="width:100%;margin-top:4px;padding:10px 12px;border:1px solid #dbe1f0;border-radius:10px;font-size:14px;color:#0A1F5C;"></div>
+                <div><label style="font-size:12px;color:#6b7599;">Grupo</label>
+                  <div style="display:flex;gap:8px;margin-top:6px;">
+                    <sc-for list="{{ nsGroupOpts }}" as="g" hint-placeholder-count="3">
+                      <button onClick="{{ g.onPick }}" style="flex:1;border:1px solid {{ g.border }};background:{{ g.bg }};color:{{ g.color }};border-radius:10px;padding:9px;font-family:'Oswald';font-weight:600;font-size:13px;cursor:pointer;">{{ g.label }}</button>
+                    </sc-for>
+                  </div>
+                </div>
+                <div><label style="font-size:12px;color:#6b7599;">Plan de la sesión — una serie por línea</label><textarea value="{{ ns.body }}" onInput="{{ onNsBody }}" rows="6" placeholder="600 m calentamiento progresivo&#10;12 × 25 m máx r/45&quot;&#10;6 × 50 m fuerte r/1:00&#10;300 m vuelta a la calma" style="width:100%;margin-top:4px;padding:10px 12px;border:1px solid #dbe1f0;border-radius:10px;font-size:14px;color:#0A1F5C;font-family:'Barlow';line-height:1.5;resize:vertical;"></textarea></div>
+                <button onClick="{{ addSession }}" style="border:0;cursor:pointer;background:#DA1E28;color:#fff;border-radius:10px;padding:12px;font-family:'Oswald';font-weight:600;letter-spacing:.5px;">GUARDAR ENTRENAMIENTO</button>
+              </div>
+            </sc-if>
+
+            <div style="background:#fff;border-radius:20px;padding:16px;box-shadow:0 4px 14px rgba(16,31,92,.06);">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                <div style="font-family:'Oswald';font-weight:700;font-size:17px;color:#0A1F5C;letter-spacing:.5px;">{{ calMonth }}</div>
+                <div style="display:flex;gap:6px;">
+                  <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7599;"><span style="width:8px;height:8px;border-radius:50%;background:#DA1E28;"></span>AM</span>
+                  <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7599;"><span style="width:8px;height:8px;border-radius:50%;background:#0A1F5C;"></span>PM</span>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px;">
+                <sc-for list="{{ calDow }}" as="d" hint-placeholder-count="7">
+                  <div style="text-align:center;font-size:10.5px;font-weight:700;color:#9AA4C0;letter-spacing:.5px;">{{ d }}</div>
+                </sc-for>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;">
+                <sc-for list="{{ calCells }}" as="c" hint-placeholder-count="35">
+                  <button onClick="{{ c.onClick }}" style="aspect-ratio:1;border:0;cursor:{{ c.cursor }};border-radius:10px;background:{{ c.bg }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0;position:relative;">
+                    <span style="font-size:12.5px;font-weight:{{ c.weight }};color:{{ c.color }};">{{ c.n }}</span>
+                    <sc-if value="{{ c.hasSession }}" hint-placeholder-val="{{ false }}">
+                      <span style="width:5px;height:5px;border-radius:50%;background:{{ c.dot }};"></span>
+                    </sc-if>
+                  </button>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="font-family:'Oswald';font-weight:600;font-size:15px;color:#0A1F5C;letter-spacing:.5px;">{{ calListLabel }}</div>
+            <sc-for list="{{ sessionsFiltered }}" as="s" hint-placeholder-count="4">
+              <div onClick="{{ s.onClickOpen }}" style="background:#fff;border-radius:16px;padding:14px;box-shadow:0 4px 14px rgba(16,31,92,.06);display:flex;gap:14px;cursor:pointer;align-items:center;">
+                <div style="width:52px;text-align:center;flex:none;">
+                  <div style="font-family:'Oswald';font-weight:700;font-size:13px;color:{{ s.color }};">{{ s.day }}</div>
+                  <div style="width:44px;height:44px;margin-top:4px;border-radius:12px;background:{{ s.color }};opacity:.12;"></div>
+                </div>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-weight:700;color:#0A1F5C;font-size:15.5px;">{{ s.title }}</div>
+                  <div style="font-size:12.5px;color:#6b7599;margin-top:2px;">{{ s.date }}</div>
+                  <div style="display:flex;gap:6px;margin-top:8px;">
+                    <span style="background:#eef1fb;color:#1E52C7;font-size:11px;font-weight:600;padding:3px 9px;border-radius:8px;">{{ s.dist }} m</span>
+                    <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:8px;color:#fff;background:{{ s.grpTone }};">{{ s.grpLabel }}</span>
+                  </div>
+                </div>
+                <div style="color:#c3cae0;font-size:22px;">›</div>
+              </div>
+            </sc-for>
+            <sc-if value="{{ calListEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="background:#fff;border-radius:14px;padding:18px;text-align:center;color:#9AA4C0;font-size:13px;box-shadow:0 4px 14px rgba(16,31,92,.06);">No hay sesiones este día. Toca «+ Nueva sesión» para programar una.</div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <!-- SESSION DETAIL -->
+        <sc-if value="{{ sSessDetail }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div style="background:linear-gradient(115deg,#0A1F5C,#123a8f);border-radius:20px;padding:20px;color:#fff;">
+              <div style="font-size:12px;letter-spacing:1.5px;opacity:.8;font-weight:600;">{{ selS.date }}</div>
+              <div style="font-family:'Oswald';font-weight:700;font-size:24px;margin:6px 0;">{{ selS.title }}</div>
+              <div style="display:flex;gap:8px;">
+                <span style="background:rgba(255,255,255,.16);padding:5px 11px;border-radius:9px;font-size:13px;font-weight:600;">{{ selS.dist }} m</span>
+                <span style="background:rgba(255,255,255,.16);padding:5px 11px;border-radius:9px;font-size:13px;font-weight:600;">{{ selS.tag }}</span>
+              </div>
+            </div>
+            <sc-if value="{{ isSwimmer }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;gap:10px;">
+                <button onClick="{{ confirmYes }}" style="flex:1;border:0;cursor:pointer;background:{{ confYesBg }};color:{{ confYesColor }};border-radius:14px;padding:14px;font-family:'Oswald';font-weight:600;letter-spacing:.5px;">✓ CONFIRMAR</button>
+                <button onClick="{{ confirmNo }}" style="flex:1;border:1px solid #e6c0c3;cursor:pointer;background:{{ confNoBg }};color:{{ confNoColor }};border-radius:14px;padding:14px;font-family:'Oswald';font-weight:600;letter-spacing:.5px;">✕ NO PUEDO</button>
+              </div>
+            </sc-if>
+            <div style="background:#fff;border-radius:20px;padding:18px;box-shadow:0 4px 14px rgba(16,31,92,.06);">
+              <div style="font-family:'Oswald';font-weight:600;font-size:16px;color:#0A1F5C;letter-spacing:.5px;margin-bottom:12px;">SET PRINCIPAL</div>
+              <sc-for list="{{ selS.sets }}" as="row" hint-placeholder-count="4">
+                <div style="display:flex;gap:12px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #f0f2f8;">
+                  <div style="width:24px;height:24px;border-radius:8px;background:#eef1fb;color:#1E52C7;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;flex:none;">{{ row.n }}</div>
+                  <div style="font-size:14px;color:#334;line-height:1.35;">{{ row.text }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- COACH · TORNEOS -->
+        <sc-if value="{{ sCoachComp }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <button onClick="{{ toggleCompForm }}" style="border:0;cursor:pointer;width:100%;background:#0A1F5C;color:#fff;border-radius:14px;padding:14px;font-family:'Oswald';font-weight:600;font-size:15px;letter-spacing:.5px;box-shadow:0 8px 20px rgba(10,31,92,.25);">+ AGREGAR TORNEO</button>
+            <sc-if value="{{ showCompForm }}" hint-placeholder-val="{{ false }}">
+              <div style="background:#fff;border-radius:18px;padding:16px;box-shadow:0 8px 24px rgba(16,31,92,.1);display:flex;flex-direction:column;gap:12px;">
+                <div><label style="font-size:12px;color:#6b7599;">Nombre del torneo</label><input value="{{ nc.name }}" onInput="{{ onNcName }}" style="width:100%;margin-top:4px;padding:10px 12px;border:1px solid #dbe1f0;border-radius:10px;font-size:14px;color:#0A1F5C;"></div>
+                <div style="display:flex;gap:10px;">
+                  <div style="flex:1;"><label style="font-size:12px;color:#6b7599;">Fecha</label><input value="{{ nc.date }}" onInput="{{ onNcDate }}" placeholder="02 AGO" style="width:100%;margin-top:4px;padding:10px 12px;border:1px solid #dbe1f0;border-radius:10px;font-size:14px;color:#0A1F5C;"></div>
+                  <div style="flex:1;"><label style="font-size:12px;color:#6b7599;">Lugar</label><input value="{{ nc.place }}" onInput="{{ onNcPlace }}" style="width:100%;margin-top:4px;padding:10px 12px;border:1px solid #dbe1f0;border-radius:10px;font-size:14px;color:#0A1F5C;"></div>
+                </div>
+                <button onClick="{{ addComp }}" style="border:0;cursor:pointer;background:#DA1E28;color:#fff;border-radius:10px;padding:12px;font-family:'Oswald';font-weight:600;letter-spacing:.5px;">GUARDAR TORNEO</button>
+              </div>
+            </sc-if>
+            <sc-for list="{{ competitions }}" as="c" hint-placeholder-count="3">
+              <div style="background:#fff;border-radius:18px;padding:16px;box-shadow:0 4px 14px rgba(16,31,92,.06);display:flex;gap:14px;">
+                <div style="width:58px;text-align:center;background:#0A1F5C;border-radius:14px;padding:10px 0;color:#fff;flex:none;">
+                  <div style="font-family:'Oswald';font-weight:700;font-size:22px;line-height:1;">{{ c.dd }}</div>
+                  <div style="font-size:11px;letter-spacing:1px;opacity:.85;margin-top:2px;">{{ c.mm }}</div>
+                </div>
+                <div style="flex:1;min-width:0;cursor:pointer;" onClick="{{ c.onOpen }}">
+                  <div style="font-weight:700;color:#0A1F5C;font-size:15.5px;line-height:1.2;">{{ c.name }}</div>
+                  <div style="font-size:12.5px;color:#6b7599;margin-top:3px;">{{ c.place }}</div>
+                  <div style="display:flex;align-items:center;gap:8px;margin-top:9px;">
+                    <span style="font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:8px;color:#fff;background:{{ c.tone }};">{{ c.status }}</span>
+                    <span style="font-size:12px;color:#6b7599;">{{ c.inscLabel }}</span>
+                  </div>
+                </div>
+                <button onClick="{{ c.onRemove }}" style="border:0;background:#f7eaea;color:#DA1E28;width:30px;height:30px;border-radius:9px;cursor:pointer;font-size:16px;flex:none;align-self:flex-start;">×</button>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- TOURNAMENT DETAIL / REPORT -->
+        <sc-if value="{{ sCompDetail }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div style="background:linear-gradient(115deg,#0A1F5C,#123a8f);border-radius:20px;padding:20px;color:#fff;">
+              <div style="font-size:12px;letter-spacing:1.5px;opacity:.8;font-weight:600;">{{ selC.dd }} {{ selC.mm }} · {{ selC.place }}</div>
+              <div style="font-family:'Oswald';font-weight:700;font-size:23px;margin:6px 0;">{{ selC.name }}</div>
+              <span style="background:rgba(255,255,255,.16);padding:5px 11px;border-radius:9px;font-size:13px;font-weight:600;">{{ selC.status }}</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <div style="background:#DA1E28;border-radius:16px;padding:16px;color:#fff;">
+                <div style="font-family:'Oswald';font-weight:700;font-size:32px;line-height:1;">{{ selC.total }}</div>
+                <div style="font-size:12px;opacity:.9;margin-top:4px;">Participantes inscritos</div>
+              </div>
+              <div style="background:#fff;border-radius:16px;padding:16px;box-shadow:0 4px 14px rgba(16,31,92,.06);">
+                <div style="font-family:'Oswald';font-weight:700;font-size:32px;line-height:1;color:#0A1F5C;">{{ selC.entriesCount }}</div>
+                <div style="font-size:12px;color:#6b7599;margin-top:4px;">Inscripciones a pruebas</div>
+              </div>
+            </div>
+            <sc-if value="{{ isCoach }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ toggleInscForm }}" style="border:0;cursor:pointer;width:100%;background:#0A1F5C;color:#fff;border-radius:14px;padding:13px;font-family:'Oswald';font-weight:600;font-size:14px;letter-spacing:.5px;">+ INSCRIBIR NADADOR</button>
+              <sc-if value="{{ showInscForm }}" hint-placeholder-val="{{ false }}">
+                <div style="background:#fff;border-radius:18px;padding:16px;box-shadow:0 8px 24px rgba(16,31,92,.1);display:flex;flex-direction:column;gap:10px;">
+                  <div style="font-size:12px;color:#6b7599;font-weight:600;">Toca un nadador para inscribirlo con sus pruebas favoritas</div>
+                  <sc-for list="{{ inscCandidates }}" as="s" hint-placeholder-count="4">
+                    <button onClick="{{ s.onAdd }}" style="border:1px solid #dbe1f0;background:#fff;border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;text-align:left;">
+                      <div style="width:34px;height:34px;border-radius:10px;background:{{ s.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Oswald';font-weight:700;font-size:13px;flex:none;">{{ s.ini }}</div>
+                      <div style="flex:1;"><div style="font-weight:600;color:#0A1F5C;font-size:14px;">{{ s.name }}</div><div style="font-size:11.5px;color:#9AA4C0;">{{ s.evText }}</div></div>
+                      <span style="color:#1E9E5A;font-size:20px;font-weight:700;">+</span>
+                    </button>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </sc-if>
+            <div style="background:#fff;border-radius:20px;padding:18px;box-shadow:0 4px 14px rgba(16,31,92,.06);">
+              <div style="font-family:'Oswald';font-weight:600;font-size:16px;color:#0A1F5C;letter-spacing:.5px;margin-bottom:10px;">LISTA DE PARTICIPANTES</div>
+              <sc-for list="{{ selC.participants }}" as="p" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f0f2f8;">
+                  <div style="width:38px;height:38px;border-radius:11px;background:{{ p.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Oswald';font-weight:700;font-size:14px;flex:none;">{{ p.ini }}</div>
+                  <div style="flex:1;min-width:0;">
+                    <div style="font-weight:600;color:#0A1F5C;font-size:14.5px;">{{ p.name }}</div>
+                    <div style="font-size:11.5px;color:#6b7599;">{{ p.cat }} · {{ p.evText }}</div>
+                  </div>
+                </div>
+              </sc-for>
+              <div onClick="{{ exportReport }}" style="margin-top:12px;text-align:center;font-family:'Oswald';font-weight:600;color:#1E52C7;font-size:13px;letter-spacing:.5px;cursor:pointer;">EXPORTAR REPORTE (PDF) ↓</div>
+            </div>
+            <div style="background:#fff;border-radius:20px;padding:18px;box-shadow:0 4px 14px rgba(16,31,92,.06);">
+              <div style="font-family:'Oswald';font-weight:600;font-size:16px;color:#0A1F5C;letter-spacing:.5px;">REPORTE GENERAL</div>
+              <div style="font-size:12px;color:#9AA4C0;margin-bottom:10px;">Participación acumulada del equipo en todos los torneos</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+                <div style="background:#0A1F5C;border-radius:14px;padding:13px;color:#fff;">
+                  <div style="font-family:'Oswald';font-weight:700;font-size:24px;line-height:1;">{{ totalTorneos }}</div>
+                  <div style="font-size:11.5px;opacity:.8;margin-top:3px;">Torneos a la fecha</div>
+                </div>
+                <div style="background:#1E9E5A;border-radius:14px;padding:13px;color:#fff;">
+                  <div style="font-family:'Oswald';font-weight:700;font-size:24px;line-height:1;">{{ totalInscritos }}</div>
+                  <div style="font-size:11.5px;opacity:.9;margin-top:3px;">Participaciones totales</div>
+                </div>
+              </div>
+              <sc-for list="{{ tourBySwimmer }}" as="r" hint-placeholder-count="6">
+                <div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #f0f2f8;">
+                  <div style="width:32px;height:32px;border-radius:9px;background:{{ r.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Oswald';font-weight:700;font-size:12px;flex:none;">{{ r.ini }}</div>
+                  <div style="flex:1;font-weight:600;color:#0A1F5C;font-size:14px;">{{ r.name }}</div>
+                  <div style="font-family:'Oswald';font-weight:700;font-size:15px;color:{{ r.countColor }};">{{ r.count }}</div>
+                  <div style="font-size:11px;color:#9AA4C0;width:48px;">torneos</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- COACH · REPORTES -->
+        <sc-if value="{{ sCoachRep }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <div style="background:#0A1F5C;border-radius:16px;padding:16px;color:#fff;">
+                <div style="font-family:'Oswald';font-weight:700;font-size:28px;line-height:1;">18k</div>
+                <div style="font-size:12px;opacity:.8;margin-top:4px;">Volumen semanal</div>
+              </div>
+              <div style="background:#DA1E28;border-radius:16px;padding:16px;color:#fff;">
+                <div style="font-family:'Oswald';font-weight:700;font-size:28px;line-height:1;">89%</div>
+                <div style="font-size:12px;opacity:.9;margin-top:4px;">Asistencia media</div>
+              </div>
+            </div>
+            <div style="background:#fff;border-radius:20px;padding:18px;box-shadow:0 4px 14px rgba(16,31,92,.06);">
+              <div style="font-family:'Oswald';font-weight:600;font-size:16px;color:#0A1F5C;letter-spacing:.5px;">ASISTENCIA POR SEMANA</div>
+              <div style="height:132px;margin-top:8px;">{{ attendanceChart }}</div>
+            </div>
+            <div style="font-family:'Oswald';font-weight:600;font-size:16px;color:#0A1F5C;letter-spacing:.5px;">RESUMEN GENERAL DE TORNEOS</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <div style="background:#0A1F5C;border-radius:16px;padding:16px;color:#fff;">
+                <div style="font-family:'Oswald';font-weight:700;font-size:28px;line-height:1;">{{ totalTorneos }}</div>
+                <div style="font-size:12px;opacity:.8;margin-top:4px;">Torneos a la fecha</div>
+              </div>
+              <div style="background:#1E9E5A;border-radius:16px;padding:16px;color:#fff;">
+                <div style="font-family:'Oswald';font-weight:700;font-size:28px;line-height:1;">{{ totalInscritos }}</div>
+                <div style="font-size:12px;opacity:.9;margin-top:4px;">Participaciones totales</div>
+              </div>
+            </div>
+            <div style="background:#fff;border-radius:20px;padding:18px;box-shadow:0 4px 14px rgba(16,31,92,.06);">
+              <div style="font-family:'Oswald';font-weight:600;font-size:14px;color:#0A1F5C;letter-spacing:.5px;margin-bottom:10px;">TORNEOS POR NADADOR</div>
+              <sc-for list="{{ tourBySwimmer }}" as="r" hint-placeholder-count="6">
+                <div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid #f0f2f8;">
+                  <div style="width:34px;height:34px;border-radius:10px;background:{{ r.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Oswald';font-weight:700;font-size:13px;flex:none;">{{ r.ini }}</div>
+                  <div style="flex:1;font-weight:600;color:#0A1F5C;font-size:14px;">{{ r.name }}</div>
+                  <div style="font-family:'Oswald';font-weight:700;font-size:16px;color:{{ r.countColor }};">{{ r.count }}</div>
+                  <div style="font-size:11px;color:#9AA4C0;width:52px;">torneos</div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="font-family:'Oswald';font-weight:600;font-size:16px;color:#0A1F5C;letter-spacing:.5px;">REPORTES DE TORNEO</div>
+            <sc-for list="{{ competitions }}" as="c" hint-placeholder-count="2">
+              <div onClick="{{ c.onOpen }}" style="background:#fff;border-radius:16px;padding:14px 16px;box-shadow:0 4px 14px rgba(16,31,92,.06);display:flex;align-items:center;justify-content:space-between;cursor:pointer;">
+                <div><div style="font-weight:700;color:#0A1F5C;font-size:15px;">{{ c.name }}</div><div style="font-size:12.5px;color:#6b7599;">{{ c.dd }} {{ c.mm }} · {{ c.inscLabel }}</div></div>
+                <div style="font-family:'Oswald';font-weight:600;color:#1E52C7;font-size:13px;">VER ›</div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- COACH · EVALUACIONES -->
+        <sc-if value="{{ sCoachEval }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div style="font-family:'Oswald';font-weight:600;font-size:16px;color:#0A1F5C;letter-spacing:.5px;">EVALUACIONES TÉCNICAS</div>
+            <div style="font-size:13px;color:#6b7599;margin-top:-6px;">Toca un nadador para ver o registrar su evaluación</div>
+            <sc-for list="{{ evalSwimmers }}" as="s" hint-placeholder-count="6">
+              <div onClick="{{ s.onOpen }}" style="background:#fff;border-radius:16px;padding:13px 14px;box-shadow:0 4px 14px rgba(16,31,92,.06);display:flex;align-items:center;gap:13px;cursor:pointer;">
+                <div style="width:46px;height:46px;border-radius:14px;background:{{ s.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Oswald';font-weight:700;font-size:17px;flex:none;">{{ s.ini }}</div>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-weight:700;color:#0A1F5C;font-size:15.5px;">{{ s.name }}</div>
+                  <div style="font-size:12px;color:#6b7599;">{{ s.count }} evaluaciones · {{ s.lastDate }}</div>
+                </div>
+                <div style="width:46px;height:46px;border-radius:12px;background:{{ s.scoreColor }};color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Oswald';font-weight:700;font-size:18px;flex:none;">{{ s.score }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- EVAL DETAIL -->
+        <sc-if value="{{ sEvalDetail }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div style="display:flex;align-items:center;gap:14px;background:#fff;border-radius:20px;padding:16px;box-shadow:0 4px 14px rgba(16,31,92,.06);">
+              <div style="width:52px;height:52px;border-radius:15px;background:{{ evSwimmer.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Oswald';font-weight:700;font-size:19px;flex:none;">{{ evSwimmer.ini }}</div>
+              <div style="flex:1;"><div style="font-family:'Oswald';font-weight:700;font-size:19px;color:#0A1F5C;line-height:1;">{{ evSwimmer.name }}</div><div style="font-size:12.5px;color:#6b7599;margin-top:4px;">{{ evCount }} evaluaciones registradas</div></div>
+            </div>
+
+            <sc-if value="{{ ef }}" hint-placeholder-val="{{ false }}">
+              <div style="background:#fff;border-radius:20px;padding:18px;box-shadow:0 8px 24px rgba(16,31,92,.1);display:flex;flex-direction:column;gap:16px;">
+                <div style="font-family:'Oswald';font-weight:600;font-size:16px;color:#0A1F5C;letter-spacing:.5px;">NUEVA EVALUACIÓN</div>
+                <sc-for list="{{ ef.rows }}" as="r" hint-placeholder-count="6">
+                  <div>
+                    <div style="display:flex;justify-content:space-between;font-size:13.5px;color:#0A1F5C;font-weight:600;margin-bottom:6px;"><span>{{ r.label }}</span><span style="font-family:'Oswald';font-size:15px;">{{ r.value }}</span></div>
+                    <input type="range" min="1" max="10" step="0.5" value="{{ r.value }}" onInput="{{ r.onInput }}" style="width:100%;accent-color:#DA1E28;">
+                  </div>
+                </sc-for>
+                <div><label style="font-size:12px;color:#6b7599;">Observaciones</label><textarea value="{{ ef.note }}" onInput="{{ onEfNote }}" rows="3" placeholder="Comentarios técnicos…" style="width:100%;margin-top:4px;padding:10px 12px;border:1px solid #dbe1f0;border-radius:10px;font-size:14px;color:#0A1F5C;font-family:'Barlow';resize:vertical;"></textarea></div>
+                <div style="display:flex;gap:10px;">
+                  <button onClick="{{ cancelEval }}" style="flex:1;border:1px solid #dbe1f0;cursor:pointer;background:#fff;color:#6b7599;border-radius:10px;padding:12px;font-family:'Oswald';font-weight:600;letter-spacing:.5px;">CANCELAR</button>
+                  <button onClick="{{ saveEval }}" style="flex:2;border:0;cursor:pointer;background:#DA1E28;color:#fff;border-radius:10px;padding:12px;font-family:'Oswald';font-weight:600;letter-spacing:.5px;">GUARDAR EVALUACIÓN</button>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ efHidden }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ startEval }}" style="border:0;cursor:pointer;width:100%;background:#0A1F5C;color:#fff;border-radius:14px;padding:14px;font-family:'Oswald';font-weight:600;font-size:15px;letter-spacing:.5px;box-shadow:0 8px 20px rgba(10,31,92,.25);">+ NUEVA EVALUACIÓN</button>
+
+              <sc-if value="{{ evLatestExists }}" hint-placeholder-val="{{ true }}">
+                <div style="background:#fff;border-radius:20px;padding:18px;box-shadow:0 4px 14px rgba(16,31,92,.06);">
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;">
+                    <div style="font-family:'Oswald';font-weight:600;font-size:16px;color:#0A1F5C;letter-spacing:.5px;">PERFIL TÉCNICO</div>
+                    <div style="font-size:12px;color:#9AA4C0;">{{ evLatestDate }}</div>
+                  </div>
+                  <div style="height:210px;">{{ evLatestRadar }}</div>
+                  <div style="text-align:center;font-family:'Oswald';font-weight:700;font-size:15px;color:#0A1F5C;">Promedio {{ evLatestScore }} / 10</div>
+                  <sc-if value="{{ evNote }}" hint-placeholder-val="{{ false }}">
+                    <div style="background:#f4f6fb;border-radius:12px;padding:11px 13px;font-size:13px;color:#334;margin-top:12px;line-height:1.4;">{{ evNote }}</div>
+                  </sc-if>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ evEmpty }}" hint-placeholder-val="{{ false }}">
+                <div style="background:#fff;border-radius:16px;padding:20px;text-align:center;color:#9AA4C0;font-size:13.5px;box-shadow:0 4px 14px rgba(16,31,92,.06);">Sin evaluaciones aún. Registra la primera con el botón de arriba.</div>
+              </sc-if>
+
+              <div style="font-family:'Oswald';font-weight:600;font-size:15px;color:#0A1F5C;letter-spacing:.5px;">HISTORIAL</div>
+              <sc-for list="{{ evHistory }}" as="h" hint-placeholder-count="2">
+                <div style="background:#fff;border-radius:16px;padding:15px 16px;box-shadow:0 4px 14px rgba(16,31,92,.06);margin-bottom:10px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                    <span style="font-size:13px;color:#6b7599;font-weight:600;">{{ h.date }}</span>
+                    <span style="font-family:'Oswald';font-weight:700;font-size:16px;color:#0A1F5C;">{{ h.score }} / 10</span>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:7px;">
+                    <sc-for list="{{ h.bars }}" as="b" hint-placeholder-count="6">
+                      <div style="display:flex;align-items:center;gap:10px;">
+                        <span style="font-size:12px;color:#6b7599;width:64px;flex:none;">{{ b.label }}</span>
+                        <div style="flex:1;height:6px;background:#eef1f8;border-radius:4px;"><div style="width:{{ b.pct }}%;height:100%;background:{{ b.color }};border-radius:4px;"></div></div>
+                        <span style="font-size:12px;color:#0A1F5C;font-weight:700;width:26px;text-align:right;flex:none;">{{ b.value }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-for>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <!-- SWIMMER · INICIO -->
+        <sc-if value="{{ sSwimInicio }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div>
+              <div style="font-family:'Oswald';font-weight:600;font-size:26px;color:#0A1F5C;line-height:1;">Hola, Valentina</div>
+              <div style="color:#6b7599;font-size:14px;margin-top:4px;">{{ meCat }} · ¡A romper marcas!</div>
+            </div>
+            <div style="background:linear-gradient(115deg,#0A1F5C,#123a8f);border-radius:20px;padding:18px 20px;color:#fff;box-shadow:0 12px 26px rgba(10,31,92,.28);">
+              <div style="font-size:12px;letter-spacing:1.5px;font-weight:600;opacity:.85;">TU PRÓXIMO ENTRENAMIENTO</div>
+              <div style="font-family:'Oswald';font-weight:700;font-size:24px;margin:6px 0 2px;">Velocidad · Sprint</div>
+              <div style="font-size:14px;opacity:.9;">Hoy 07:00 · 3.200 m · Piscina UChile</div>
+              <button onClick="{{ openTodaySession }}" style="margin-top:14px;border:0;cursor:pointer;background:rgba(255,255,255,.18);color:#fff;border-radius:10px;padding:9px 14px;font-size:13px;font-weight:600;font-family:'Barlow';">Ver y confirmar asistencia →</button>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <div style="background:#fff;border-radius:16px;padding:16px;box-shadow:0 4px 14px rgba(16,31,92,.06);">
+                <div style="font-size:11px;color:#6b7599;letter-spacing:1px;">ASISTENCIA</div>
+                <div style="font-family:'Oswald';font-weight:700;font-size:30px;line-height:1;margin-top:6px;color:#1E9E5A;">96%</div>
+                <div style="font-size:12px;color:#6b7599;margin-top:3px;">23 de 24 sesiones</div>
+              </div>
+              <div style="background:#fff;border-radius:16px;padding:16px;box-shadow:0 4px 14px rgba(16,31,92,.06);">
+                <div style="font-size:11px;color:#6b7599;letter-spacing:1px;">PBS DEL CICLO</div>
+                <div style="font-family:'Oswald';font-weight:700;font-size:30px;line-height:1;margin-top:6px;color:#DA1E28;">2</div>
+                <div style="font-size:12px;color:#6b7599;margin-top:3px;">nuevas marcas</div>
+              </div>
+            </div>
+            <div style="background:#fff;border-radius:16px;padding:16px;box-shadow:0 4px 14px rgba(16,31,92,.06);">
+              <div style="font-family:'Oswald';font-weight:600;font-size:15px;color:#0A1F5C;letter-spacing:.5px;">PRÓXIMO TORNEO</div>
+              <div style="font-weight:700;color:#0A1F5C;font-size:15px;margin-top:6px;">Campeonato Regional Máster</div>
+              <div style="font-size:12.5px;color:#6b7599;">02 AGO · Piscina Scotiabank</div>
+            </div>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div style="font-family:'Oswald';font-weight:600;font-size:16px;color:#0A1F5C;letter-spacing:.5px;">MIS MEJORES MARCAS</div>
+              <button onClick="{{ toggleFeatEdit }}" style="border:0;cursor:pointer;background:{{ featEditBg }};color:{{ featEditColor }};font-family:'Oswald';font-weight:600;font-size:12px;letter-spacing:.5px;padding:7px 13px;border-radius:9px;">{{ featEditLabel }}</button>
+            </div>
+
+            <sc-if value="{{ featEdit }}" hint-placeholder-val="{{ false }}">
+              <div style="background:#fff;border-radius:18px;padding:16px;box-shadow:0 8px 24px rgba(16,31,92,.1);">
+                <div style="font-size:12.5px;color:#6b7599;margin-bottom:10px;">Elige hasta 3 marcas para mostrar como motivación</div>
+                <sc-for list="{{ featChoices }}" as="c" hint-placeholder-count="4">
+                  <button onClick="{{ c.onToggle }}" style="width:100%;border:1px solid {{ c.border }};background:{{ c.bg }};border-radius:12px;padding:11px 13px;display:flex;align-items:center;gap:10px;cursor:pointer;text-align:left;margin-bottom:8px;">
+                    <div style="width:20px;height:20px;border-radius:6px;border:2px solid {{ c.box }};background:{{ c.boxBg }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex:none;">{{ c.check }}</div>
+                    <div style="flex:1;font-weight:600;color:#0A1F5C;font-size:14px;">{{ c.event }}</div>
+                    <span style="font-family:'Oswald';font-weight:700;font-size:15px;color:#0A1F5C;">{{ c.time }}</span>
+                  </button>
+                </sc-for>
+                <div style="font-size:11.5px;color:#9AA4C0;">{{ featCountLabel }}</div>
+              </div>
+            </sc-if>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+              <sc-for list="{{ featured }}" as="f" hint-placeholder-count="3">
+                <div onClick="{{ f.onOpen }}" style="background:linear-gradient(160deg,{{ f.c1 }},{{ f.c2 }});border-radius:16px;padding:14px 12px;color:#fff;cursor:pointer;box-shadow:0 8px 20px {{ f.shadow }};">
+                  <div style="font-size:16px;line-height:1;">🏅</div>
+                  <div style="font-family:'Oswald';font-weight:700;font-size:19px;line-height:1;margin-top:10px;">{{ f.time }}</div>
+                  <div style="font-size:10.5px;opacity:.9;margin-top:4px;line-height:1.2;">{{ f.event }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <sc-if value="{{ featEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="background:#fff;border-radius:14px;padding:16px;text-align:center;color:#9AA4C0;font-size:13px;box-shadow:0 4px 14px rgba(16,31,92,.06);">Toca «Editar» para destacar tus mejores marcas aquí.</div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <!-- SWIMMER · ENTRENAMIENTOS -->
+        <sc-if value="{{ sSwimEnt }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div style="font-family:'Oswald';font-weight:600;font-size:16px;color:#0A1F5C;letter-spacing:.5px;">MIS ENTRENAMIENTOS ASIGNADOS</div>
+            <sc-for list="{{ sessions }}" as="s" hint-placeholder-count="4">
+              <div onClick="{{ s.onClickOpen }}" style="background:#fff;border-radius:16px;padding:14px;box-shadow:0 4px 14px rgba(16,31,92,.06);display:flex;gap:14px;cursor:pointer;align-items:center;">
+                <div style="width:52px;text-align:center;flex:none;">
+                  <div style="font-family:'Oswald';font-weight:700;font-size:13px;color:{{ s.color }};">{{ s.day }}</div>
+                  <div style="width:44px;height:44px;margin-top:4px;border-radius:12px;background:{{ s.color }};opacity:.12;"></div>
+                </div>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-weight:700;color:#0A1F5C;font-size:15.5px;">{{ s.title }}</div>
+                  <div style="font-size:12.5px;color:#6b7599;margin-top:2px;">{{ s.date }}</div>
+                  <div style="display:flex;gap:6px;margin-top:8px;align-items:center;">
+                    <span style="background:#eef1fb;color:#1E52C7;font-size:11px;font-weight:600;padding:3px 9px;border-radius:8px;">{{ s.dist }} m</span>
+                    <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:8px;color:#fff;background:{{ s.confColor }};">{{ s.confLabel }}</span>
+                  </div>
+                </div>
+                <div style="color:#c3cae0;font-size:22px;">›</div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- SWIMMER · PROGRESO -->
+        <sc-if value="{{ sSwimProg }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div style="background:#fff;border-radius:20px;padding:18px;box-shadow:0 4px 14px rgba(16,31,92,.06);">
+              <div style="font-family:'Oswald';font-weight:600;font-size:16px;color:#0A1F5C;letter-spacing:.5px;">EVOLUCIÓN POR PRUEBA (seg)</div>
+              <div style="font-size:12px;color:#9AA4C0;margin-bottom:10px;">▼ El tiempo baja = mejora</div>
+              <div style="display:flex;gap:7px;overflow-x:auto;padding-bottom:8px;margin-bottom:4px;">
+                <sc-for list="{{ progChips }}" as="c" hint-placeholder-count="4">
+                  <button onClick="{{ c.onPick }}" style="flex:none;border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.color }};border-radius:999px;padding:6px 13px;font-size:12px;font-weight:600;font-family:'Barlow';cursor:pointer;white-space:nowrap;">{{ c.label }}</button>
+                </sc-for>
+              </div>
+              <div style="height:132px;">{{ myProgressChart }}</div>
+              <div style="font-size:12px;color:#6b7599;margin-top:6px;text-align:center;">{{ progSubtitle }}</div>
+            </div>
+            <sc-if value="{{ myEvalExists }}" hint-placeholder-val="{{ false }}">
+              <div style="background:#fff;border-radius:20px;padding:18px;box-shadow:0 4px 14px rgba(16,31,92,.06);">
+                <div style="display:flex;justify-content:space-between;align-items:baseline;">
+                  <div style="font-family:'Oswald';font-weight:600;font-size:16px;color:#0A1F5C;letter-spacing:.5px;">MI EVALUACIÓN TÉCNICA</div>
+                  <div style="font-size:12px;color:#9AA4C0;">{{ myEvalDate }}</div>
+                </div>
+                <div style="height:210px;">{{ myEvalRadar }}</div>
+                <div style="text-align:center;font-family:'Oswald';font-weight:700;font-size:15px;color:#0A1F5C;">Promedio {{ myEvalScore }} / 10</div>
+                <sc-if value="{{ myEvalNote }}" hint-placeholder-val="{{ false }}">
+                  <div style="background:#f4f6fb;border-radius:12px;padding:11px 13px;font-size:13px;color:#334;margin-top:12px;line-height:1.4;">💬 {{ myEvalNote }}</div>
+                </sc-if>
+              </div>
+            </sc-if>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div style="font-family:'Oswald';font-weight:600;font-size:16px;color:#0A1F5C;letter-spacing:.5px;">MIS MARCAS</div>
+              <button onClick="{{ toggleTimeForm }}" style="border:0;cursor:pointer;background:#DA1E28;color:#fff;font-family:'Oswald';font-weight:600;font-size:12px;letter-spacing:.5px;padding:8px 14px;border-radius:10px;">+ REGISTRAR</button>
+            </div>
+            <sc-if value="{{ showTimeForm }}" hint-placeholder-val="{{ false }}">
+              <div style="background:#fff;border-radius:18px;padding:16px;box-shadow:0 8px 24px rgba(16,31,92,.1);display:flex;flex-direction:column;gap:12px;">
+                <div><label style="font-size:12px;color:#6b7599;">Prueba</label>
+                  <select value="{{ tf.event }}" onChange="{{ onTfEvent }}" style="width:100%;margin-top:4px;padding:10px 12px;border:1px solid #dbe1f0;border-radius:10px;font-size:14px;color:#0A1F5C;background:#fff;">
+                    <option>50 m Libre</option><option>100 m Libre</option><option>200 m Libre</option><option>100 m Espalda</option><option>100 m Pecho</option><option>100 m Mariposa</option>
+                  </select>
+                </div>
+                <div><label style="font-size:12px;color:#6b7599;">Tiempo estándar (00:00.0)</label><input value="{{ tf.time }}" onInput="{{ onTfTime }}" inputmode="numeric" placeholder="01:02.4" style="width:100%;margin-top:4px;padding:10px 12px;border:1px solid #dbe1f0;border-radius:10px;font-size:18px;color:#0A1F5C;font-family:'Oswald';font-weight:700;letter-spacing:1px;"></div>
+                <div><label style="font-size:12px;color:#6b7599;">Parciales cada</label>
+                  <div style="display:flex;gap:8px;margin-top:6px;">
+                    <sc-for list="{{ tfSplitOpts }}" as="o" hint-placeholder-count="2">
+                      <button onClick="{{ o.onPick }}" style="flex:1;border:1px solid {{ o.border }};background:{{ o.bg }};color:{{ o.color }};border-radius:10px;padding:9px;font-family:'Oswald';font-weight:600;font-size:13px;cursor:pointer;">{{ o.label }}</button>
+                    </sc-for>
+                  </div>
+                </div>
+                <div><label style="font-size:12px;color:#6b7599;">Pasadas ({{ tf.splitDist }} m) — separadas por coma</label><input value="{{ tf.splits }}" onInput="{{ onTfSplits }}" placeholder="30.9, 31.5" style="width:100%;margin-top:4px;padding:10px 12px;border:1px solid #dbe1f0;border-radius:10px;font-size:14px;color:#0A1F5C;"></div>
+                <button onClick="{{ addTime }}" style="border:0;cursor:pointer;background:#0A1F5C;color:#fff;border-radius:10px;padding:12px;font-family:'Oswald';font-weight:600;letter-spacing:.5px;">GUARDAR TIEMPO</button>
+              </div>
+            </sc-if>
+            <sc-for list="{{ myTimes }}" as="t" hint-placeholder-count="4">
+              <div onClick="{{ t.onOpen }}" style="background:#fff;border-radius:14px;padding:13px 16px;box-shadow:0 4px 14px rgba(16,31,92,.06);display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;cursor:pointer;">
+                <div>
+                  <div style="font-weight:700;color:#0A1F5C;font-size:15px;">{{ t.event }}</div>
+                  <div style="font-size:12px;color:#9AA4C0;">{{ t.date }} · ver evolución ›</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <sc-if value="{{ t.pb }}" hint-placeholder-val="{{ false }}"><span style="background:#DA1E28;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;letter-spacing:.5px;">PB</span></sc-if>
+                  <span style="font-family:'Oswald';font-weight:700;font-size:19px;color:#0A1F5C;">{{ t.time }}</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- MARK DETAIL (evolución por prueba) -->
+        <sc-if value="{{ sMarkDetail }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div style="background:linear-gradient(115deg,#DA1E28,#a3141c);border-radius:20px;padding:20px;color:#fff;">
+              <div style="font-size:12px;letter-spacing:1.5px;opacity:.85;font-weight:600;">MEJOR MARCA</div>
+              <div style="font-family:'Oswald';font-weight:700;font-size:38px;line-height:1;margin:6px 0 2px;">{{ mark.best }}</div>
+              <div style="font-size:14px;opacity:.9;">{{ mark.event }} · {{ mark.improveLabel }}</div>
+            </div>
+            <div style="background:#fff;border-radius:20px;padding:18px;box-shadow:0 4px 14px rgba(16,31,92,.06);">
+              <div style="font-family:'Oswald';font-weight:600;font-size:16px;color:#0A1F5C;letter-spacing:.5px;">EVOLUCIÓN (seg)</div>
+              <div style="font-size:12px;color:#9AA4C0;margin-bottom:8px;">▼ El tiempo baja = mejora · {{ mark.count }} registros</div>
+              <div style="height:150px;">{{ markChart }}</div>
+            </div>
+            <div style="background:#fff;border-radius:20px;padding:18px;box-shadow:0 4px 14px rgba(16,31,92,.06);">
+              <div style="font-family:'Oswald';font-weight:600;font-size:16px;color:#0A1F5C;letter-spacing:.5px;margin-bottom:10px;">HISTORIAL</div>
+              <sc-for list="{{ mark.history }}" as="h" hint-placeholder-count="3">
+                <div style="padding:10px 0;border-bottom:1px solid #f0f2f8;">
+                  <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <span style="font-size:13px;color:#6b7599;">{{ h.date }}</span>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <sc-if value="{{ h.pb }}" hint-placeholder-val="{{ false }}"><span style="background:#DA1E28;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;">PB</span></sc-if>
+                      <span style="font-family:'Oswald';font-weight:700;font-size:17px;color:#0A1F5C;">{{ h.time }}</span>
+                    </div>
+                  </div>
+                  <sc-if value="{{ h.hasSplits }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
+                      <sc-for list="{{ h.splitChips }}" as="c" hint-placeholder-count="2">
+                        <span style="background:#eef1fb;color:#1E52C7;font-size:11px;font-weight:600;padding:3px 9px;border-radius:8px;">{{ c.label }}</span>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ sSwimComp }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div style="font-family:'Oswald';font-weight:600;font-size:16px;color:#0A1F5C;letter-spacing:.5px;">MIS TORNEOS</div>
+            <sc-for list="{{ competitions }}" as="c" hint-placeholder-count="3">
+              <div style="background:#fff;border-radius:18px;padding:16px;box-shadow:0 4px 14px rgba(16,31,92,.06);display:flex;gap:14px;">
+                <div style="width:58px;text-align:center;background:#0A1F5C;border-radius:14px;padding:10px 0;color:#fff;flex:none;">
+                  <div style="font-family:'Oswald';font-weight:700;font-size:22px;line-height:1;">{{ c.dd }}</div>
+                  <div style="font-size:11px;letter-spacing:1px;opacity:.85;margin-top:2px;">{{ c.mm }}</div>
+                </div>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-weight:700;color:#0A1F5C;font-size:15.5px;line-height:1.2;">{{ c.name }}</div>
+                  <div style="font-size:12.5px;color:#6b7599;margin-top:3px;">{{ c.place }}</div>
+                  <button onClick="{{ c.onToggleAttend }}" style="margin-top:9px;border:0;cursor:pointer;font-size:11.5px;font-weight:700;padding:6px 12px;border-radius:8px;color:{{ c.attColor }};background:{{ c.attBg }};font-family:'Barlow';">{{ c.attLabel }}</button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- SWIMMER · PERFIL -->
+        <sc-if value="{{ sSwimPerfil }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:8px 0;">
+              <div style="width:88px;height:88px;border-radius:26px;background:#DA1E28;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Oswald';font-weight:700;font-size:34px;">VR</div>
+              <div style="text-align:center;">
+                <div style="font-family:'Oswald';font-weight:700;font-size:22px;color:#0A1F5C;">{{ me.nombre }}</div>
+                <div style="font-size:13px;color:#6b7599;">{{ meCat }} · {{ meAge }} años · Nadadora</div>
+              </div>
+            </div>
+
+            <div style="background:#eef4ff;border:1px solid #d3e0fb;border-radius:14px;padding:12px 14px;display:flex;gap:12px;">
+              <div style="flex:1;"><div style="font-size:11px;color:#6b7599;letter-spacing:.5px;">EDAD (auto)</div><div style="font-family:'Oswald';font-weight:700;font-size:20px;color:#0A1F5C;">{{ meAge }}</div></div>
+              <div style="width:1px;background:#d3e0fb;"></div>
+              <div style="flex:1;"><div style="font-size:11px;color:#6b7599;letter-spacing:.5px;">CATEGORÍA (auto)</div><div style="font-family:'Oswald';font-weight:700;font-size:20px;color:#0A1F5C;">{{ meCat }}</div></div>
+            </div>
+
+            <div style="background:#fff;border-radius:20px;padding:18px;box-shadow:0 4px 14px rgba(16,31,92,.06);display:flex;flex-direction:column;gap:13px;">
+              <div style="font-family:'Oswald';font-weight:600;font-size:15px;color:#0A1F5C;letter-spacing:.5px;">DATOS PERSONALES</div>
+              <div><label style="font-size:12px;color:#6b7599;">Nombre completo</label><input value="{{ me.nombre }}" onInput="{{ onMe_nombre }}" style="width:100%;margin-top:4px;padding:11px 12px;border:1px solid #dbe1f0;border-radius:10px;font-size:14px;color:#0A1F5C;"></div>
+              <div style="display:flex;gap:12px;">
+                <div style="flex:1;"><label style="font-size:12px;color:#6b7599;">RUT</label><input value="{{ me.rut }}" onInput="{{ onMe_rut }}" style="width:100%;margin-top:4px;padding:11px 12px;border:1px solid {{ rutBorder }};border-radius:10px;font-size:14px;color:#0A1F5C;"><div style="font-size:11px;color:{{ rutMsgColor }};margin-top:3px;">{{ rutMsg }}</div></div>
+                <div style="flex:1;"><label style="font-size:12px;color:#6b7599;">Fecha nacimiento</label><input value="{{ me.birth }}" onInput="{{ onMe_birth }}" placeholder="1993-05-14" style="width:100%;margin-top:4px;padding:11px 12px;border:1px solid #dbe1f0;border-radius:10px;font-size:14px;color:#0A1F5C;"></div>
+              </div>
+              <div style="display:flex;gap:12px;">
+                <div style="flex:1;"><label style="font-size:12px;color:#6b7599;">Email</label><input value="{{ me.email }}" onInput="{{ onMe_email }}" style="width:100%;margin-top:4px;padding:11px 12px;border:1px solid #dbe1f0;border-radius:10px;font-size:14px;color:#0A1F5C;"></div>
+                <div style="flex:1;"><label style="font-size:12px;color:#6b7599;">Teléfono</label><input value="{{ me.phone }}" onInput="{{ onMe_phone }}" style="width:100%;margin-top:4px;padding:11px 12px;border:1px solid #dbe1f0;border-radius:10px;font-size:14px;color:#0A1F5C;"></div>
+              </div>
+            </div>
+
+            <div style="background:#fff;border-radius:20px;padding:18px;box-shadow:0 4px 14px rgba(16,31,92,.06);display:flex;flex-direction:column;gap:13px;">
+              <div style="font-family:'Oswald';font-weight:600;font-size:15px;color:#0A1F5C;letter-spacing:.5px;">PERFIL DEPORTIVO</div>
+              <div><label style="font-size:12px;color:#6b7599;">Grupo de entrenamiento</label>
+                <div style="display:flex;gap:8px;margin-top:6px;">
+                  <sc-for list="{{ meGroupOpts }}" as="g" hint-placeholder-count="2">
+                    <button onClick="{{ g.onPick }}" style="flex:1;border:1px solid {{ g.border }};background:{{ g.bg }};color:{{ g.color }};border-radius:10px;padding:11px;font-family:'Oswald';font-weight:600;font-size:14px;cursor:pointer;">{{ g.label }}</button>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="display:flex;gap:12px;">
+                <div style="flex:1;"><label style="font-size:12px;color:#6b7599;">Primer estilo</label>
+                  <select value="{{ me.style1 }}" onChange="{{ onMe_style1 }}" style="width:100%;margin-top:4px;padding:11px 12px;border:1px solid #dbe1f0;border-radius:10px;font-size:14px;color:#0A1F5C;background:#fff;"><option>Libre</option><option>Espalda</option><option>Pecho</option><option>Mariposa</option></select>
+                </div>
+                <div style="flex:1;"><label style="font-size:12px;color:#6b7599;">Segundo estilo</label>
+                  <select value="{{ me.style2 }}" onChange="{{ onMe_style2 }}" style="width:100%;margin-top:4px;padding:11px 12px;border:1px solid #dbe1f0;border-radius:10px;font-size:14px;color:#0A1F5C;background:#fff;"><option>Libre</option><option>Espalda</option><option>Pecho</option><option>Mariposa</option></select>
+                </div>
+              </div>
+              <div style="display:flex;gap:12px;">
+                <div style="flex:1;"><label style="font-size:12px;color:#6b7599;">Prueba favorita 1</label><input value="{{ me.ev1 }}" onInput="{{ onMe_ev1 }}" style="width:100%;margin-top:4px;padding:11px 12px;border:1px solid #dbe1f0;border-radius:10px;font-size:14px;color:#0A1F5C;"></div>
+                <div style="flex:1;"><label style="font-size:12px;color:#6b7599;">Prueba favorita 2</label><input value="{{ me.ev2 }}" onInput="{{ onMe_ev2 }}" style="width:100%;margin-top:4px;padding:11px 12px;border:1px solid #dbe1f0;border-radius:10px;font-size:14px;color:#0A1F5C;"></div>
+              </div>
+            </div>
+
+            <div style="background:#fff;border-radius:20px;padding:18px;box-shadow:0 4px 14px rgba(16,31,92,.06);display:flex;flex-direction:column;gap:13px;">
+              <div style="font-family:'Oswald';font-weight:600;font-size:15px;color:#0A1F5C;letter-spacing:.5px;">SALUD Y EMERGENCIA</div>
+              <div style="background:#fff5f5;border:1px solid #f3d3d5;border-radius:10px;padding:8px 11px;font-size:11.5px;color:#DA1E28;">⚕ Datos sensibles · visibles solo para ti y tu entrenador</div>
+              <div><label style="font-size:12px;color:#6b7599;">Prescripción médica</label><input value="{{ me.medical }}" onInput="{{ onMe_medical }}" style="width:100%;margin-top:4px;padding:11px 12px;border:1px solid #dbe1f0;border-radius:10px;font-size:14px;color:#0A1F5C;"></div>
+              <div><label style="font-size:12px;color:#6b7599;">Contacto de emergencia</label><input value="{{ me.emergency }}" onInput="{{ onMe_emergency }}" style="width:100%;margin-top:4px;padding:11px 12px;border:1px solid #dbe1f0;border-radius:10px;font-size:14px;color:#0A1F5C;"></div>
+            </div>
+
+            <div style="background:#fff;border-radius:20px;padding:18px;box-shadow:0 4px 14px rgba(16,31,92,.06);display:flex;flex-direction:column;gap:13px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="font-family:'Oswald';font-weight:600;font-size:15px;color:#0A1F5C;letter-spacing:.5px;">PIN DE INGRESO</div>
+                <button onClick="{{ togglePinForm }}" style="border:0;cursor:pointer;background:{{ pinFormBg }};color:{{ pinFormColor }};font-family:'Oswald';font-weight:600;font-size:12px;letter-spacing:.5px;padding:7px 13px;border-radius:9px;">{{ pinFormLabel }}</button>
+              </div>
+              <sc-if value="{{ showPinForm }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;gap:11px;">
+                  <div><label style="font-size:12px;color:#6b7599;">Nuevo PIN (4 dígitos)</label><input value="{{ pf.new }}" onInput="{{ onPfNew }}" inputmode="numeric" maxlength="4" placeholder="••••" style="width:100%;margin-top:4px;padding:11px 12px;border:1px solid #dbe1f0;border-radius:10px;font-size:18px;color:#0A1F5C;font-family:'Oswald';font-weight:700;letter-spacing:6px;"></div>
+                  <div><label style="font-size:12px;color:#6b7599;">Repetir PIN</label><input value="{{ pf.rep }}" onInput="{{ onPfRep }}" inputmode="numeric" maxlength="4" placeholder="••••" style="width:100%;margin-top:4px;padding:11px 12px;border:1px solid {{ pfBorder }};border-radius:10px;font-size:18px;color:#0A1F5C;font-family:'Oswald';font-weight:700;letter-spacing:6px;"></div>
+                  <div style="font-size:11.5px;color:{{ pfMsgColor }};">{{ pfMsg }}</div>
+                  <button onClick="{{ savePin }}" style="border:0;cursor:pointer;background:#DA1E28;color:#fff;border-radius:10px;padding:11px;font-family:'Oswald';font-weight:600;letter-spacing:.5px;">GUARDAR PIN</button>
+                </div>
+              </sc-if>
+            </div>
+
+            <button onClick="{{ saveProfile }}" style="border:0;cursor:pointer;background:#0A1F5C;color:#fff;border-radius:14px;padding:14px;font-family:'Oswald';font-weight:600;letter-spacing:.5px;">{{ saveLabel }}</button>
+            <button onClick="{{ goLogin }}" style="border:1px solid #e6c0c3;cursor:pointer;background:#fff;color:#DA1E28;border-radius:14px;padding:13px;font-family:'Oswald';font-weight:600;letter-spacing:.5px;">CERRAR SESIÓN</button>
+          </div>
+        </sc-if>
+
+      </div>
+
+      <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);border-top:1px solid #e6eaf5;display:flex;padding:8px 6px 22px;z-index:15;">
+        <sc-for list="{{ nav }}" as="n" hint-placeholder-count="5">
+          <button onClick="{{ n.onClick }}" style="flex:1;border:0;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;padding:4px 0;">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="{{ n.color }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ n.icon }}"></path></svg>
+            <span style="font-size:10.5px;font-weight:{{ n.weight }};color:{{ n.color }};">{{ n.label }}</span>
+          </button>
+        </sc-for>
+      </div>
+      </div>
+      </sc-if>
+
+    </div>
+  </div>
+
+  <div style="color:#6b7599;font-size:12.5px;text-align:center;max-width:392px;line-height:1.5;">Prototipo de alta fidelidad · Login con PIN, gestión de PIN, ficha completa del nadador, inscripción a torneos y reporte de participantes. Usa el conmutador DEMO para saltar entre roles.</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  YEAR = 2026;
+  state = {
+    screen: 'login',      // login | app
+    role: 'coach',
+    tab: 'inicio',
+    view: 'tab',
+    sel: null, selS: null, selC: null,
+    pinReveal: false,
+    swimmerPins: {},      // id -> {pin, restored}
+    loginId: '', loginPin: '', loginError: false,
+    showSessForm: false, showTimeForm: false, showCompForm: false, showInscForm: false,
+    ns: { day: 'Lun 22 Jul', focus: 'Técnica', dist: '3.000', group: 'Ambos', body: '' },
+    nc: { name: '', date: '', place: '' },
+    tf: { event: '100 m Libre', time: '', splitDist: '50', splits: '' },
+    selMark: null,
+    progEvent: '100 m Libre',
+    featIds: ['100 m Libre', '50 m Libre'],
+    featEdit: false,
+    calSelDay: null,
+    importedSwimmers: [],
+    showImport: false, importText: '', importPins: null,
+    showPinForm: false, pf: { new: '', rep: '' }, myPin: '4821',
+    saved: false,
+    // swimmer's own editable profile
+    me: {
+      nombre: 'Valentina Rojas Díaz', rut: '17.845.221-3', birth: '1993-05-14',
+      email: 'v.rojas@uchile.cl', phone: '+56 9 8123 4567',
+      style1: 'Libre', style2: 'Espalda', ev1: '100 m Libre', ev2: '50 m Libre', grupo: 'AM',
+      medical: 'Sin restricciones · control cardiológico anual', emergency: 'María Díaz (madre) · +56 9 9871 2233',
+    },
+    confirmations: {},    // sessionId -> 'yes'|'no'
+    tourAttend: {},       // compId -> bool
+    sessions: [
+      { id: 1, day: 'LUN 15', date: 'Lun 15 Jul · 07:00', title: 'Técnica de nado', focus: 'Técnica', dist: '2.800', tag: 'Equipo completo', grupo: 'Ambos', color: '#1E52C7',
+        sets: ['400 m calentamiento suave','8 × 50 m drills (catch-up / puño)','6 × 100 m técnica libre r/20"','4 × 50 m nado perfecto','200 m vuelta a la calma'] },
+      { id: 2, day: 'MIÉ 17', date: 'Mié 17 Jul · 07:00', title: 'Velocidad · sprint', focus: 'Velocidad', dist: '3.200', tag: 'Máster A/B', grupo: 'AM', color: '#DA1E28',
+        sets: ['600 m calentamiento progresivo','12 × 25 m máx r/45"','6 × 50 m fuerte r/1:00','300 m suave','8 × 50 m salidas'] },
+      { id: 3, day: 'VIE 19', date: 'Vie 19 Jul · 07:00', title: 'Resistencia aeróbica', focus: 'Aeróbico', dist: '4.000', tag: 'Equipo completo', grupo: 'PM', color: '#0A1F5C',
+        sets: ['800 m calentamiento','3 × 800 m ritmo umbral r/40"','4 × 100 m estilos','200 m suave'] },
+      { id: 4, day: 'SÁB 20', date: 'Sáb 20 Jul · 09:00', title: 'Test 100 m', focus: 'Control', dist: '2.000', tag: 'Toma de tiempos', grupo: 'Ambos', color: '#1E52C7',
+        sets: ['1000 m calentamiento completo','2 × 100 m a ritmo','100 m TEST cronometrado','400 m recuperación'] },
+    ],
+    myTimes: [
+      { event: '100 m Libre', time: '1:02.4', date: '13 Jul', pb: true, splitDist: '50', splits: ['30.9','31.5'] },
+      { event: '50 m Libre', time: '29.8', date: '13 Jul', pb: true, splitDist: '25', splits: ['14.4','15.4'] },
+      { event: '100 m Libre', time: '1:03.6', date: '29 Jun', pb: false, splitDist: '50', splits: ['31.2','32.4'] },
+      { event: '100 m Espalda', time: '1:15.2', date: '06 Jul', pb: false, splitDist: '50', splits: ['36.8','38.4'] },
+      { event: '100 m Libre', time: '1:04.8', date: '15 Jun', pb: false, splitDist: '50', splits: ['31.8','33.0'] },
+      { event: '200 m Libre', time: '2:24.1', date: '29 Jun', pb: false, splitDist: '50', splits: ['34.2','36.1','36.8','37.0'] },
+    ],
+    competitions: [
+      { id: 1, name: 'Campeonato Regional Máster', date: '02 AGO', place: 'Piscina Scotiabank, Santiago', status: 'Inscripción abierta', tone: '#1E9E5A',
+        participants: [
+          { sid: 1, evText: '100 L, 50 L' }, { sid: 3, evText: '100 L, 200 L' }, { sid: 6, evText: '100 L, 50 M' },
+        ] },
+      { id: 2, name: 'Copa Invierno UChile', date: '24 AGO', place: 'CDA, Ñuñoa', status: 'Próxima', tone: '#1E52C7', participants: [] },
+      { id: 3, name: 'Nacional Máster', date: '05 OCT', place: 'Complejo Acuático, Talca', status: 'Planificada', tone: '#9AA4C0', participants: [] },
+    ],
+    evalCriteria: ['Libre', 'Espalda', 'Pecho', 'Mariposa', 'Virajes', 'Salidas'],
+    evaluations: [
+      { id: 1, sid: 1, date: '02 Jul 2026', scores: { Libre: 8.5, Espalda: 7.8, Pecho: 6.9, Mariposa: 7.2, Virajes: 8.0, Salidas: 7.5 }, note: 'Excelente técnica de libre. Mejorar patada de pecho.' },
+      { id: 2, sid: 1, date: '04 Jun 2026', scores: { Libre: 8.0, Espalda: 7.5, Pecho: 6.5, Mariposa: 6.8, Virajes: 7.4, Salidas: 7.0 }, note: 'Buen avance general.' },
+      { id: 3, sid: 3, date: '02 Jul 2026', scores: { Libre: 7.6, Espalda: 8.4, Pecho: 7.0, Mariposa: 6.5, Virajes: 7.8, Salidas: 7.2 }, note: 'Espalda muy sólida.' },
+    ],
+    ef: null,
+    selEvalSid: null,
+  };
+
+  swimmersBase = [
+    { id: 1, name: 'Valentina Rojas', ini: 'VR', color: '#DA1E28', att: 96, pb: '1:02.4', pbEv: '100 L', birth: '1993-05-14', rut: '17.845.221-3', trend: [69.1,68.2,67.4,66.9,66.0,64.8], delta: '-4.3s', ev: ['100 L','50 L'], email: 'v.rojas@uchile.cl', phone: '+56 9 8123 4567', style1: 'Libre', style2: 'Espalda', medical: 'Sin restricciones · control cardiológico anual', emergency: 'María Díaz (madre) · +56 9 9871 2233', grupo: 'AM', pin: '4821' },
+    { id: 2, name: 'Matías Fuentes', ini: 'MF', color: '#1E52C7', att: 88, pb: '58.9', pbEv: '100 L', birth: '1988-11-02', rut: '15.220.984-6', trend: [61.4,60.8,60.5,59.9,59.3,58.9], delta: '-2.5s', ev: ['100 L','200 L'], email: 'm.fuentes@uchile.cl', phone: '+56 9 7333 1122', style1: 'Libre', style2: 'Mariposa', medical: 'Asma leve · usa inhalador pre-esfuerzo', emergency: 'Ana Pérez (esposa) · +56 9 6210 4590', grupo: 'PM', pin: '1097' },
+    { id: 3, name: 'Camila Soto', ini: 'CS', color: '#0A1F5C', att: 92, pb: '1:08.1', pbEv: '100 L', birth: '1994-02-20', rut: '18.331.740-2', trend: [72.0,71.2,70.5,69.9,69.0,68.1], delta: '-3.9s', ev: ['100 L','200 L'], email: 'c.soto@uchile.cl', phone: '+56 9 5011 8890', style1: 'Espalda', style2: 'Libre', medical: 'Sin restricciones', emergency: 'Pedro Soto (padre) · +56 9 8890 1122', grupo: 'AM', pin: '3355' },
+    { id: 4, name: 'Diego Herrera', ini: 'DH', color: '#1E52C7', att: 79, pb: '1:05.7', pbEv: '100 L', birth: '1983-07-30', rut: '13.998.210-k', trend: [70.0,69.4,68.8,67.9,66.5,65.7], delta: '-4.3s', ev: ['100 L','100 E'], email: 'd.herrera@uchile.cl', phone: '+56 9 4422 7788', style1: 'Libre', style2: 'Pecho', medical: 'Hernia lumbar leve · evitar sobrecarga de piernas', emergency: 'Rosa Lira (esposa) · +56 9 3311 9900', grupo: 'PM', pin: '7788' },
+    { id: 5, name: 'Francisca Lagos', ini: 'FL', color: '#DA1E28', att: 84, pb: '1:11.3', pbEv: '100 L', birth: '1987-09-12', rut: '15.660.033-1', trend: [74.8,74.0,73.1,72.6,71.9,71.3], delta: '-3.5s', ev: ['100 L','100 M'], email: 'f.lagos@uchile.cl', phone: '+56 9 6677 2211', style1: 'Mariposa', style2: 'Libre', medical: 'Sin restricciones', emergency: 'Luis Lagos (hermano) · +56 9 2200 5566', grupo: 'AM', pin: '9012' },
+    { id: 6, name: 'Sebastián Núñez', ini: 'SN', color: '#0A1F5C', att: 90, pb: '56.2', pbEv: '100 L', birth: '1992-12-05', rut: '17.101.556-8', trend: [58.9,58.3,57.6,57.1,56.6,56.2], delta: '-2.7s', ev: ['100 L','50 M'], email: 's.nunez@uchile.cl', phone: '+56 9 8001 3344', style1: 'Libre', style2: 'Mariposa', medical: 'Sin restricciones', emergency: 'Clara Núñez (madre) · +56 9 7788 3322', grupo: 'PM', pin: '6543' },
+  ];
+
+  // ---- helpers ----
+  ageFrom(birth) {
+    const d = new Date(birth); if (isNaN(d)) return null;
+    let a = this.YEAR - d.getFullYear();
+    return a;
+  }
+  catFrom(birth) {
+    const age = this.ageFrom(birth);
+    if (age == null) return '—';
+    const bandStart = Math.max(25, Math.floor(age / 5) * 5);
+    const letter = String.fromCharCode(65 + Math.max(0, (bandStart - 30) / 5));
+    return `Máster ${letter} · ${bandStart}\u2013${bandStart + 4}`;
+  }
+  parseTime(str) {
+    const s = String(str).trim(); if (!s) return null;
+    const m = s.match(/^(?:(\d+):)?(\d{1,2})(?:\.(\d))?$/);
+    if (!m) return null;
+    return (parseInt(m[1] || '0') * 60) + parseInt(m[2]) + (m[3] ? parseInt(m[3]) / 10 : 0);
+  }
+  maskTime(raw) {
+    const dig = String(raw).replace(/\D/g, '');
+    if (!dig) return '';
+    const t = dig.slice(-1);
+    const sec = dig.slice(-3, -1).padStart(2, '0');
+    const min = dig.slice(0, -3) || '0';
+    return `${parseInt(min)}:${sec}.${t}`;
+  }
+  validRut(rut) {    const c = (rut || '').replace(/[.\-\s]/g, '').toUpperCase();
+    if (c.length < 2) return false;
+    const body = c.slice(0, -1), dv = c.slice(-1);
+    if (!/^\d+$/.test(body)) return false;
+    let sum = 0, mul = 2;
+    for (let i = body.length - 1; i >= 0; i--) { sum += parseInt(body[i]) * mul; mul = mul === 7 ? 2 : mul + 1; }
+    const res = 11 - (sum % 11);
+    const calc = res === 11 ? '0' : res === 10 ? 'K' : String(res);
+    return calc === dv;
+  }
+
+  h = React.createElement;
+  barChart(vals, color, unit) {
+    const h = this.h, W = 300, H = 128, pl = 6, pb = 20, pt = 12;
+    const max = Math.max(...vals) * 1.12, n = vals.length, gw = (W - pl * 2) / n, bw = gw * 0.46;
+    const kids = [];
+    vals.forEach((v, i) => {
+      const bh = (v / max) * (H - pb - pt), x = pl + i * gw + (gw - bw) / 2, y = H - pb - bh;
+      kids.push(h('rect', { key: 'b' + i, x, y, width: bw, height: bh, rx: 3, fill: color, opacity: i === n - 1 ? 1 : 0.5 }));
+      kids.push(h('text', { key: 'l' + i, x: x + bw / 2, y: H - 6, fill: '#9AA4C0', fontSize: 11, textAnchor: 'middle', fontFamily: 'Barlow' }, 'S' + (i + 1)));
+      if (i === n - 1) kids.push(h('text', { key: 't' + i, x: x + bw / 2, y: y - 5, fill: color, fontSize: 12, fontWeight: 700, textAnchor: 'middle', fontFamily: 'Barlow' }, v + (unit || '')));
+    });
+    return h('svg', { viewBox: `0 0 ${W} ${H}`, width: '100%', height: '100%', preserveAspectRatio: 'xMidYMid meet' }, kids);
+  }
+  lineChart(vals, color) {
+    const h = this.h, W = 300, H = 128, p = 16;
+    const min = Math.min(...vals), max = Math.max(...vals), range = (max - min) || 1;
+    const pts = vals.map((v, i) => [p + i * (W - p * 2) / (vals.length - 1), H - p - (v - min) / range * (H - p * 2 - 8)]);
+    const line = pts.map((q, i) => (i ? 'L' : 'M') + q[0].toFixed(1) + ' ' + q[1].toFixed(1)).join(' ');
+    const area = line + ` L ${pts[pts.length - 1][0].toFixed(1)} ${H - p} L ${pts[0][0].toFixed(1)} ${H - p} Z`;
+    const gid = 'g' + color.replace('#', '');
+    return h('svg', { viewBox: `0 0 ${W} ${H}`, width: '100%', height: '100%', preserveAspectRatio: 'none' }, [
+      h('defs', { key: 'd' }, h('linearGradient', { id: gid, x1: 0, y1: 0, x2: 0, y2: 1 }, [
+        h('stop', { key: 0, offset: '0%', stopColor: color, stopOpacity: 0.28 }),
+        h('stop', { key: 1, offset: '100%', stopColor: color, stopOpacity: 0 }),
+      ])),
+      h('path', { key: 'a', d: area, fill: `url(#${gid})` }),
+      h('path', { key: 'p', d: line, fill: 'none', stroke: color, strokeWidth: 2.5, strokeLinecap: 'round', strokeLinejoin: 'round' }),
+      ...pts.map((q, i) => h('circle', { key: 'c' + i, cx: q[0], cy: q[1], r: i === pts.length - 1 ? 4.5 : 3, fill: '#fff', stroke: color, strokeWidth: 2 })),
+    ]);
+  }
+  icon(k) {
+    return {
+      home: 'M3 9.5 12 3l9 6.5M5 8.5V21h5v-6h4v6h5V8.5',
+      users: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.87M17 3.13a4 4 0 0 1 0 7.75',
+      dumbbell: 'M6.5 6.5 17.5 17.5M21 21l-1-1M3 3l1 1M18 22l4-4M2 6l4-4M6.5 10.5l4-4M13.5 17.5l4-4',
+      trophy: 'M7 4h10v5a5 5 0 0 1-10 0zM7 4H3v2a4 4 0 0 0 4 4M17 4h4v2a4 4 0 0 0-4 4M9 21h6M12 17v4',
+      chart: 'M3 3v18h18M8 15l3-4 3 2 4-6',
+      user: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1',
+      clipboard: 'M9 3h6a1 1 0 0 1 1 1v1h1a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h1V4a1 1 0 0 1 1-1zM9 5v1h6V5M9 12l2 2 4-4',
+    }[k];
+  }
+  radarChart(scores, color) {
+    const h = this.h, W = 260, H = 220, cx = 130, cy = 108, R = 84;
+    const keys = Object.keys(scores), n = keys.length;
+    const ang = (i) => (Math.PI * 2 * i / n) - Math.PI / 2;
+    const at = (i, r) => [cx + Math.cos(ang(i)) * r, cy + Math.sin(ang(i)) * r];
+    const kids = [];
+    [0.25, 0.5, 0.75, 1].forEach((ring, ri) => {
+      const pts = keys.map((_, i) => at(i, R * ring).map(v => v.toFixed(1)).join(',')).join(' ');
+      kids.push(h('polygon', { key: 'g' + ri, points: pts, fill: 'none', stroke: '#e6eaf5', strokeWidth: 1 }));
+    });
+    keys.forEach((_, i) => { const p = at(i, R); kids.push(h('line', { key: 'ax' + i, x1: cx, y1: cy, x2: p[0], y2: p[1], stroke: '#e6eaf5', strokeWidth: 1 })); });
+    const dataPts = keys.map((k, i) => at(i, R * (scores[k] / 10)));
+    kids.push(h('polygon', { key: 'data', points: dataPts.map(p => p.map(v => v.toFixed(1)).join(',')).join(' '), fill: color, fillOpacity: 0.22, stroke: color, strokeWidth: 2.5, strokeLinejoin: 'round' }));
+    dataPts.forEach((p, i) => kids.push(h('circle', { key: 'dp' + i, cx: p[0], cy: p[1], r: 3, fill: '#fff', stroke: color, strokeWidth: 2 })));
+    keys.forEach((k, i) => {
+      const p = at(i, R + 18), a = ang(i);
+      const anchor = Math.abs(Math.cos(a)) < 0.3 ? 'middle' : (Math.cos(a) > 0 ? 'start' : 'end');
+      kids.push(h('text', { key: 'lb' + i, x: p[0], y: p[1] + 3, fill: '#6b7599', fontSize: 10.5, fontWeight: 600, textAnchor: anchor, fontFamily: 'Barlow' }, k));
+    });
+    return h('svg', { viewBox: `0 0 ${W} ${H}`, width: '100%', height: '100%', preserveAspectRatio: 'xMidYMid meet' }, kids);
+  }
+  navFor(role, tab) {
+    const items = role === 'coach'
+      ? [['inicio','Inicio','home'],['nadadores','Nadadores','users'],['entrenamientos','Sesiones','dumbbell'],['evaluaciones','Evaluar','clipboard'],['competencias','Torneos','trophy'],['reportes','Reportes','chart']]
+      : [['inicio','Inicio','home'],['entrenamientos','Sesiones','dumbbell'],['progreso','Progreso','chart'],['competencias','Torneos','trophy'],['perfil','Perfil','user']];
+    return items.map(([key, label, ic]) => {
+      const active = tab === key;
+      return { key, label, icon: this.icon(ic), color: active ? '#0A1F5C' : '#9AA4C0', weight: active ? 700 : 500, onClick: () => this.setState({ tab: key, view: 'tab' }) };
+    });
+  }
+
+  renderVals() {
+    const st = this.state, isCoach = st.role === 'coach', view = st.view, tab = st.tab;
+    const onLogin = st.screen === 'login';
+
+    // login model
+    const pinDots = [0,1,2,3].map(i => {
+      const filled = i < st.loginPin.length;
+      return { ch: filled ? '•' : '', border: filled ? '#0A1F5C' : '#dbe1f0', bg: filled ? '#eef4ff' : '#fff' };
+    });
+    const press = (d) => () => { if (st.loginPin.length < 4) this.setState({ loginPin: st.loginPin + d, loginError: false }); };
+    const keypad = ['1','2','3','4','5','6','7','8','9'].map(d => ({ label: d, bg: '#fff', color: '#0A1F5C', onClick: press(d) }));
+    keypad.push({ label: '⌫', bg: 'transparent', color: '#a9bbee', onClick: () => this.setState({ loginPin: st.loginPin.slice(0, -1), loginError: false }) });
+    keypad.push({ label: '0', bg: '#fff', color: '#0A1F5C', onClick: press('0') });
+    keypad.push({ label: '→', bg: '#DA1E28', color: '#fff', onClick: () => {
+      if (st.loginPin.length < 4) { this.setState({ loginError: true }); return; }
+      this.setState({ screen: 'app', tab: 'inicio', view: 'tab', loginPin: '', loginError: false });
+    }});
+
+    // swimmers with computed cat/age + pin state
+    const roster = [...this.swimmersBase, ...st.importedSwimmers];
+    const pinOf = (s) => (st.swimmerPins[s.id] && st.swimmerPins[s.id].pin) || s.pin;
+    const swimmers = roster.map(s => ({
+      ...s,
+      cat: this.catFrom(s.birth),
+      age: this.ageFrom(s.birth),
+      onClickOpen: () => this.setState({ sel: s, view: 'swimmer', pinReveal: false }),
+      confLabel: st.confMap && st.confMap[s.id] ? '' : (s.id % 3 === 0 ? 'Sin responder' : 'Confirmado'),
+      confColor: s.id % 3 === 0 ? '#9AA4C0' : '#1E9E5A',
+      pending: !!s.pending, notPending: !s.pending,
+    }));
+
+    const sel = st.sel ? swimmers.find(x => x.id === st.sel.id) : null;    const selWithPin = sel ? (() => {
+      const rec = st.swimmerPins[sel.id];
+      const pin = pinOf(sel);
+      return {
+        ...sel,
+        pinDisplay: st.pinReveal ? pin : '••••',
+        pinRestored: !!(rec && rec.restored),
+        medical: sel.medical,
+        fichaRows: [
+          { k: 'RUT', v: sel.rut },
+          { k: 'Fecha nac.', v: sel.birth },
+          { k: 'Email', v: sel.email },
+          { k: 'Teléfono', v: sel.phone },
+          { k: 'Estilos', v: `${sel.style1} / ${sel.style2}` },
+          { k: 'Pruebas fav.', v: sel.ev.join(' · ') },
+          { k: 'Contacto emerg.', v: sel.emergency },
+        ],
+      };
+    })() : null;
+
+    // sessions with confirm state + group
+    const grpTone = (g) => g === 'AM' ? '#DA1E28' : g === 'PM' ? '#0A1F5C' : '#1E9E5A';
+    const sessions = st.sessions.map(s => {
+      const c = st.confirmations[s.id];
+      return { ...s, onClickOpen: () => this.setState({ selS: s, view: 'session' }),
+        grpLabel: s.grupo === 'Ambos' ? 'AM + PM' : 'Grupo ' + s.grupo, grpTone: grpTone(s.grupo),
+        confLabel: c === 'yes' ? 'Confirmado' : c === 'no' ? 'No asiste' : 'Pendiente',
+        confColor: c === 'yes' ? '#1E9E5A' : c === 'no' ? '#DA1E28' : '#9AA4C0' };
+    });
+    const selS = st.selS ? st.sessions.find(x => x.id === st.selS.id) : null;
+    const selSConf = selS ? st.confirmations[selS.id] : null;
+
+    // calendar (July 2026)
+    const dayNum = (s) => { const m = String(s.day).match(/(\d{1,2})/); return m ? parseInt(m[1]) : null; };
+    const sessByDay = {};
+    sessions.forEach(s => { const d = dayNum(s); if (d) (sessByDay[d] = sessByDay[d] || []).push(s); });
+    const firstDow = new Date(2026, 6, 1).getDay(); // 0=Sun
+    const daysInMonth = 31;
+    const calCells = [];
+    for (let i = 0; i < firstDow; i++) calCells.push({ n: '', bg: 'transparent', color: 'transparent', weight: 400, cursor: 'default', hasSession: false, onClick: () => {} });
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dayS = sessByDay[d] || [];
+      const has = dayS.length > 0;
+      const isSel = st.calSelDay === d;
+      const hasAM = dayS.some(s => s.grupo === 'AM' || s.grupo === 'Ambos');
+      const dot = dayS.some(s => s.grupo === 'PM') && !hasAM ? '#0A1F5C' : '#DA1E28';
+      calCells.push({ n: d, hasSession: has, dot,
+        bg: isSel ? '#0A1F5C' : has ? '#eef1fb' : 'transparent',
+        color: isSel ? '#fff' : has ? '#0A1F5C' : '#6b7599',
+        weight: has ? 700 : 500, cursor: 'pointer',
+        onClick: () => this.setState({ calSelDay: isSel ? null : d }) });
+    }
+    const sessionsFiltered = st.calSelDay ? (sessByDay[st.calSelDay] || []) : sessions;
+    const calListLabel = st.calSelDay ? `SESIONES · ${st.calSelDay} JUL` : 'TODAS LAS SESIONES';
+
+    // today confirmations split by AM/PM group
+    const confGroups = ['AM', 'PM'].map(gr => ({
+      label: 'GRUPO ' + gr, tone: grpTone(gr),
+      sub: gr === 'AM' ? 'Sesión 07:00' : 'Sesión 19:00',
+      members: swimmers.filter(s => s.grupo === gr),
+    }));
+
+    // tournament counts per swimmer (general report)
+    const tourBySwimmer = this.swimmersBase.map(s => {
+      const count = st.competitions.reduce((a, c) => a + (c.participants.some(p => p.sid === s.id) ? 1 : 0), 0);
+      return { name: s.name, ini: s.ini, color: s.color, count, countColor: count === 0 ? '#9AA4C0' : '#0A1F5C' };
+    }).sort((a, b) => b.count - a.count);
+    const totalTorneos = st.competitions.length;
+    const totalInscritos = st.competitions.reduce((a, c) => a + c.participants.length, 0);
+
+    const groupPicker = (cur, onPick, opts) => opts.map(o => ({
+      label: o, onPick: () => onPick(o),
+      border: cur === o ? grpTone(o) : '#dbe1f0',
+      bg: cur === o ? grpTone(o) : '#fff',
+      color: cur === o ? '#fff' : '#6b7599',
+    }));
+
+    // mark detail (evolution per event)
+    const myTimes = st.myTimes.map((t, i) => ({ ...t, onOpen: () => this.setState({ selMark: t.event, view: 'mark' }) }));
+    const mark = st.selMark ? (() => {
+      const ev = st.selMark;
+      const rows = st.myTimes.map((t, i) => ({ ...t, secs: this.parseTime(t.time), idx: i })).filter(t => t.event === ev && t.secs != null);
+      const chrono = [...rows].reverse();
+      const secs = chrono.map(r => r.secs);
+      const best = rows.reduce((a, b) => (b.secs < a.secs ? b : a), rows[0]);
+      const first = secs[0], last = secs[secs.length - 1];
+      const diff = (first - last);
+      return {
+        event: ev, best: best ? best.time : '—', count: rows.length,
+        improveLabel: rows.length > 1 ? (diff >= 0 ? `↓ ${diff.toFixed(1)} s de mejora` : `↑ ${Math.abs(diff).toFixed(1)} s`) : 'registro único',
+        secs,
+        history: rows.map(r => ({
+          date: r.date, time: r.time, pb: r.pb,
+          hasSplits: r.splits && r.splits.length > 0,
+          splitChips: (r.splits || []).map((s, k) => ({ label: `${(k + 1) * parseInt(r.splitDist || 50)}m: ${s}` })),
+        })),
+      };
+    })() : null;
+
+    // competitions
+    const byId = Object.fromEntries(this.swimmersBase.map(s => [s.id, s]));
+    const competitions = st.competitions.map(c => {
+      const dd = c.date.split(' ')[0], mm = c.date.split(' ')[1] || '';
+      return { ...c, dd, mm,
+        inscLabel: `${c.participants.length} inscritos`,
+        onOpen: () => this.setState({ selC: c, view: 'competition', showInscForm: false }),
+        onRemove: () => this.setState({ competitions: st.competitions.filter(x => x.id !== c.id) }),
+        onToggleAttend: () => this.setState({ tourAttend: { ...st.tourAttend, [c.id]: !st.tourAttend[c.id] } }),
+        attLabel: st.tourAttend[c.id] ? '✓ Participación registrada' : 'Registrar participación',
+        attColor: st.tourAttend[c.id] ? '#fff' : '#1E52C7',
+        attBg: st.tourAttend[c.id] ? '#1E9E5A' : '#eef1fb',
+      };
+    });
+    const selC = st.selC ? (() => {
+      const c = st.competitions.find(x => x.id === st.selC.id); if (!c) return null;
+      const dd = c.date.split(' ')[0], mm = c.date.split(' ')[1] || '';
+      const participants = c.participants.map(p => {
+        const s = byId[p.sid];
+        return { name: s.name, ini: s.ini, color: s.color, cat: this.catFrom(s.birth), evText: p.evText };
+      });
+      return { ...c, dd, mm, participants, total: participants.length,
+        entriesCount: c.participants.reduce((a, p) => a + p.evText.split(',').length, 0) };
+    })() : null;
+    const inscCandidates = selC ? this.swimmersBase.filter(s => !st.competitions.find(x => x.id === selC.id).participants.some(p => p.sid === s.id)).map(s => ({
+      ...s, evText: s.ev.join(', '),
+      onAdd: () => this.setState({ competitions: st.competitions.map(x => x.id === selC.id ? { ...x, participants: [...x.participants, { sid: s.id, evText: s.ev.join(', ') }] } : x) }),
+    })) : [];
+
+    // ===== EVALUACIONES =====
+    const crit = st.evalCriteria;
+    const avg = (sc) => { const v = Object.values(sc); return v.reduce((a, b) => a + b, 0) / v.length; };
+    const meses3 = { Ene:0,Feb:1,Mar:2,Abr:3,May:4,Jun:5,Jul:6,Ago:7,Sep:8,Oct:9,Nov:10,Dic:11 };
+    const parseEvalDate = (d) => { const p = String(d).split(' '); return new Date(parseInt(p[2]||2026), meses3[p[1]] ?? 0, parseInt(p[0]||1)).getTime(); };
+    const evalsOf = (sid) => st.evaluations.filter(e => e.sid === sid).sort((a, b) => parseEvalDate(b.date) - parseEvalDate(a.date));
+    const evalSwimmers = roster.map(s => {
+      const es = evalsOf(s.id), last = es[0];
+      return { id: s.id, name: s.name, ini: s.ini, color: s.color, cat: this.catFrom(s.birth),
+        count: es.length, lastDate: last ? last.date : 'Sin evaluar',
+        score: last ? avg(last.scores).toFixed(1) : '—',
+        scoreColor: last ? (avg(last.scores) >= 7.5 ? '#1E9E5A' : avg(last.scores) >= 6 ? '#1E52C7' : '#DA1E28') : '#9AA4C0',
+        onOpen: () => this.setState({ selEvalSid: s.id, view: 'eval', ef: null }) };
+    });
+    const evSid = st.selEvalSid;
+    const evSwimmer = evSid ? roster.find(s => s.id === evSid) : null;
+    const evList = evSid ? evalsOf(evSid) : [];
+    const evLatest = evList[0] || null;
+    const startEval = () => this.setState({ ef: Object.fromEntries([...crit.map(c => [c, 7]), ['note', '']]) });
+    const setEf = (c, v) => this.setState({ ef: { ...st.ef, [c]: v } });
+    const saveEval = () => {
+      if (!st.ef) return;
+      const scores = Object.fromEntries(crit.map(c => [c, st.ef[c]]));
+      const d = new Date(); const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+      const date = `${String(d.getDate()).padStart(2,'0')} ${meses[d.getMonth()]} ${d.getFullYear()}`;
+      this.setState({ evaluations: [...st.evaluations, { id: Date.now(), sid: evSid, date, scores, note: st.ef.note || '' }], ef: null });
+    };
+    const efModel = st.ef ? { note: st.ef.note, rows: crit.map(c => ({ label: c, value: st.ef[c], pct: (st.ef[c] / 10 * 100),
+      onInput: (e) => setEf(c, parseFloat(e.target.value)) })) } : null;
+    const evHistory = evList.map(e => ({ date: e.date, score: avg(e.scores).toFixed(1), note: e.note,
+      bars: crit.map(c => ({ label: c, value: e.scores[c].toFixed(1), pct: e.scores[c] / 10 * 100,
+        color: e.scores[c] >= 7.5 ? '#1E9E5A' : e.scores[c] >= 6 ? '#1E52C7' : '#DA1E28' })) }));
+    // swimmer's own latest evaluation (Valentina = id 1)
+    const myEval = evalsOf(1)[0] || null;
+
+    // titles
+    const titles = { inicio: 'Inicio', nadadores: 'Nadadores', entrenamientos: 'Entrenamientos', evaluaciones: 'Evaluaciones', competencias: 'Torneos', reportes: 'Reportes', progreso: 'Mi progreso', perfil: 'Mi perfil' };
+    let headerTitle = titles[tab] || 'Inicio';
+    if (view === 'swimmer' && sel) headerTitle = sel.name;
+    if (view === 'session' && selS) headerTitle = selS.title;
+    if (view === 'competition' && selC) headerTitle = 'Reporte de torneo';
+    if (view === 'mark' && st.selMark) headerTitle = st.selMark;
+    if (view === 'eval' && evSwimmer) headerTitle = 'Evaluación';
+
+    const setField = (grp, key) => (e) => this.setState({ [grp]: { ...st[grp], [key]: e.target.value } });
+    const meField = (key) => (e) => this.setState({ me: { ...st.me, [key]: e.target.value }, saved: false });
+
+    const addSession = () => {
+      const ns = st.ns; if (!ns.day || !ns.focus) return;
+      const body = (ns.body || '').split('\n').map(x => x.trim()).filter(Boolean);
+      const sets = body.length ? body : ['Calentamiento', 'Serie principal', 'Vuelta a la calma'];
+      const s2 = { id: Date.now(), day: ns.day.slice(0, 6).toUpperCase(), date: ns.day + ' · 07:00', title: ns.focus, focus: ns.focus, dist: ns.dist || '3.000', tag: 'Equipo completo', grupo: ns.group || 'Ambos', color: '#1E52C7', sets };
+      this.setState({ sessions: [s2, ...st.sessions], showSessForm: false, ns: { day: 'Lun 22 Jul', focus: 'Técnica', dist: '3.000', group: 'Ambos', body: '' } });
+    };
+    const addComp = () => {
+      const nc = st.nc; if (!nc.name || !nc.date) return;
+      const c2 = { id: Date.now(), name: nc.name, date: nc.date.toUpperCase(), place: nc.place || 'Por confirmar', status: 'Próxima', tone: '#1E52C7', participants: [] };
+      this.setState({ competitions: [...st.competitions, c2], showCompForm: false, nc: { name: '', date: '', place: '' } });
+    };
+    const addTime = () => {
+      const tf = st.tf; if (!tf.time) return;
+      const splits = (tf.splits || '').split(',').map(x => x.trim()).filter(Boolean);
+      const isPb = (() => {
+        const secs = this.parseTime(tf.time); if (secs == null) return false;
+        const prior = st.myTimes.filter(t => t.event === tf.event).map(t => this.parseTime(t.time)).filter(v => v != null);
+        return prior.length === 0 || secs < Math.min(...prior);
+      })();
+      const stripped = isPb ? st.myTimes.map(t => t.event === tf.event ? { ...t, pb: false } : t) : st.myTimes;
+      this.setState({ myTimes: [{ event: tf.event, time: tf.time, date: 'Hoy', pb: isPb, splitDist: tf.splitDist, splits }, ...stripped], showTimeForm: false, tf: { event: '100 m Libre', time: '', splitDist: '50', splits: '' } });
+    };
+    const restorePin = () => {
+      const newPin = String(Math.floor(1000 + Math.random() * 9000));
+      this.setState({ swimmerPins: { ...st.swimmerPins, [sel.id]: { pin: newPin, restored: true } }, pinReveal: true });
+    };
+
+    const rutOk = this.validRut(st.me.rut);
+
+    const runImport = () => {
+      const lines = (st.importText || '').split('\n').map(l => l.trim()).filter(Boolean);
+      if (!lines.length) return;
+      const colors = ['#DA1E28', '#1E52C7', '#0A1F5C'];
+      const added = [], pins = [];
+      lines.forEach((line, i) => {
+        const parts = line.split(',').map(x => x.trim());
+        const name = parts[0] || 'Sin nombre';
+        const rut = parts[1] || '';
+        const ini = name.split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+        const pin = String(Math.floor(1000 + Math.random() * 9000));
+        const id = 1000 + st.importedSwimmers.length + i;
+        added.push({ id, name, ini, rut, pin, color: colors[i % 3], pending: true,
+          birth: '', att: 0, pb: '—', pbEv: '—', delta: '—', trend: [0, 0], ev: [],
+          email: '', phone: '', style1: '—', style2: '—', medical: 'Sin informar', emergency: 'Sin informar', grupo: 'AM' });
+        pins.push({ name, pin });
+      });
+      this.setState({ importedSwimmers: [...st.importedSwimmers, ...added], importPins: pins, importText: '' });
+    };
+
+    // swimmer's own PIN change
+    const pf = st.pf;
+    const pfValid = /^\d{4}$/.test(pf.new) && pf.new === pf.rep;
+    const savePin = () => { if (pfValid) this.setState({ myPin: pf.new, showPinForm: false, pf: { new: '', rep: '' } }); };
+
+    return {
+      // screens
+      sLogin: onLogin, sApp: !onLogin,
+      statusColor: onLogin ? '#fff' : '#fff',
+      isCoach, isSwimmer: !isCoach, view,
+      headerTitle, showBack: view !== 'tab', back: () => this.setState({ view: 'tab' }),
+
+      // demo switch
+      demoCoach: () => this.setState({ screen: 'app', role: 'coach', tab: 'inicio', view: 'tab' }),
+      demoSwimmer: () => this.setState({ screen: 'app', role: 'swimmer', tab: 'inicio', view: 'tab' }),
+      goLogin: () => this.setState({ screen: 'login', loginPin: '', loginId: '', loginError: false }),
+      roleCoachBg: (!onLogin && isCoach) ? '#DA1E28' : 'transparent', roleCoachColor: (!onLogin && isCoach) ? '#fff' : '#a9bbee',
+      roleSwimBg: (!onLogin && !isCoach) ? '#DA1E28' : 'transparent', roleSwimColor: (!onLogin && !isCoach) ? '#fff' : '#a9bbee',
+      roleLoginBg: onLogin ? '#DA1E28' : 'transparent', roleLoginColor: onLogin ? '#fff' : '#a9bbee',
+
+      // login
+      loginId: st.loginId, onLoginId: (e) => this.setState({ loginId: e.target.value }),
+      pinDots, keypad, loginError: st.loginError,
+
+      // nav + screen flags
+      nav: this.navFor(st.role, tab),
+      sCoachInicio: isCoach && tab === 'inicio' && view === 'tab',
+      sCoachNad: isCoach && tab === 'nadadores' && view === 'tab',
+      sSwimmerDetail: view === 'swimmer',
+      sCoachEnt: isCoach && tab === 'entrenamientos' && view === 'tab',
+      sSwimEnt: !isCoach && tab === 'entrenamientos' && view === 'tab',
+      sSessDetail: view === 'session',
+      sCoachComp: isCoach && tab === 'competencias' && view === 'tab',
+      sSwimComp: !isCoach && tab === 'competencias' && view === 'tab',
+      sCompDetail: view === 'competition',
+      sCoachRep: isCoach && tab === 'reportes' && view === 'tab',
+      sCoachEval: isCoach && tab === 'evaluaciones' && view === 'tab',
+      sEvalDetail: view === 'eval',
+      sSwimInicio: !isCoach && tab === 'inicio' && view === 'tab',
+      sSwimProg: !isCoach && tab === 'progreso' && view === 'tab',
+      sSwimPerfil: !isCoach && tab === 'perfil' && view === 'tab',
+
+      swimmers,
+      swimmerCount: roster.length,
+      showImport: st.showImport, toggleImport: () => this.setState({ showImport: !st.showImport }),
+      importText: st.importText, onImportText: (e) => this.setState({ importText: e.target.value }),
+      runImport, importResult: !!st.importPins, importPins: st.importPins || [], importCount: (st.importPins || []).length,
+      sel: selWithPin,
+      selChart: sel ? this.lineChart(sel.trend, sel.color) : null,
+      pinToggleLabel: st.pinReveal ? 'OCULTAR' : 'VER',
+      togglePin: () => this.setState({ pinReveal: !st.pinReveal }),
+      restorePin,
+
+      sessions, selS,
+      calMonth: 'Julio 2026', calDow: ['D', 'L', 'M', 'M', 'J', 'V', 'S'],
+      calCells, sessionsFiltered, calListLabel, calListEmpty: sessionsFiltered.length === 0,
+      confGroups, grpTotal: 'AM · PM',
+      totalTorneos, totalInscritos, tourBySwimmer,
+      nsGroupOpts: groupPicker(st.ns.group, (g) => this.setState({ ns: { ...st.ns, group: g } }), ['AM', 'PM', 'Ambos']),
+      meGroupOpts: groupPicker(st.me.grupo, (g) => this.setState({ me: { ...st.me, grupo: g }, saved: false }), ['AM', 'PM']),
+      confirmYes: () => selS && this.setState({ confirmations: { ...st.confirmations, [selS.id]: 'yes' } }),
+      confirmNo: () => selS && this.setState({ confirmations: { ...st.confirmations, [selS.id]: 'no' } }),
+      confYesBg: selSConf === 'yes' ? '#1E9E5A' : '#eaf6ef', confYesColor: selSConf === 'yes' ? '#fff' : '#1E9E5A',
+      confNoBg: selSConf === 'no' ? '#DA1E28' : '#fff', confNoColor: selSConf === 'no' ? '#fff' : '#DA1E28',
+      openTodaySession: () => this.setState({ selS: st.sessions[1], view: 'session' }),
+
+      competitions, selC, inscCandidates,
+      // evaluaciones
+      evalSwimmers, evSwimmer, evHistory,
+      evLatestExists: !!evLatest,
+      evLatestRadar: evLatest ? this.radarChart(evLatest.scores, evSwimmer ? evSwimmer.color : '#DA1E28') : null,
+      evLatestScore: evLatest ? avg(evLatest.scores).toFixed(1) : '—',
+      evLatestDate: evLatest ? evLatest.date : '',
+      evNote: evLatest ? evLatest.note : '',
+      evEmpty: !!evSwimmer && evList.length === 0,
+      evCount: evList.length,
+      startEval, ef: efModel, saveEval, cancelEval: () => this.setState({ ef: null }),
+      efHidden: !st.ef,
+      onEfNote: (e) => this.setState({ ef: { ...st.ef, note: e.target.value } }),
+      myEvalExists: !!myEval,
+      myEvalRadar: myEval ? this.radarChart(myEval.scores, '#DA1E28') : null,
+      myEvalScore: myEval ? avg(myEval.scores).toFixed(1) : '—',
+      myEvalDate: myEval ? myEval.date : '',
+      myEvalNote: myEval ? myEval.note : '',
+      showInscForm: st.showInscForm, toggleInscForm: () => this.setState({ showInscForm: !st.showInscForm }),
+      exportReport: () => {},
+
+      sMarkDetail: view === 'mark',
+      mark, markChart: mark && mark.secs.length > 1 ? this.lineChart(mark.secs, '#DA1E28') : (mark ? this.lineChart([mark.secs[0], mark.secs[0]], '#DA1E28') : null),
+      myTimes,
+      volumeChart: this.barChart([12, 14, 13, 16, 15, 18], '#1E52C7', 'k'),
+      attendanceChart: this.barChart([88, 90, 86, 92, 94, 96], '#DA1E28', '%'),
+      // featured best marks on swimmer home (pick up to 3 events)
+      ...(() => {
+        const events = [...new Set(st.myTimes.map(t => t.event))];
+        const bestOf = (ev) => {
+          const rows = st.myTimes.map(t => ({ ...t, secs: this.parseTime(t.time) })).filter(t => t.event === ev && t.secs != null);
+          return rows.length ? rows.reduce((a, b) => b.secs < a.secs ? b : a) : null;
+        };
+        const palettes = [['#DA1E28', '#a3141c', 'rgba(218,30,40,.28)'], ['#0A1F5C', '#123a8f', 'rgba(10,31,92,.28)'], ['#1E9E5A', '#157a44', 'rgba(30,158,90,.28)']];
+        const sel = st.featIds.filter(ev => events.includes(ev)).slice(0, 3);
+        const featured = sel.map((ev, i) => {
+          const b = bestOf(ev), p = palettes[i % 3];
+          return { event: ev, time: b ? b.time : '—', c1: p[0], c2: p[1], shadow: p[2], onOpen: () => this.setState({ selMark: ev, view: 'mark' }) };
+        });
+        const toggleFeat = (ev) => {
+          const has = st.featIds.includes(ev);
+          if (has) this.setState({ featIds: st.featIds.filter(x => x !== ev) });
+          else if (st.featIds.length < 3) this.setState({ featIds: [...st.featIds, ev] });
+        };
+        const featChoices = events.map(ev => {
+          const b = bestOf(ev), on = st.featIds.includes(ev);
+          return { event: ev, time: b ? b.time : '—', onToggle: () => toggleFeat(ev),
+            check: on ? '✓' : '', box: on ? '#DA1E28' : '#c3cae0', boxBg: on ? '#DA1E28' : '#fff',
+            border: on ? '#DA1E28' : '#dbe1f0', bg: on ? '#fff5f5' : '#fff' };
+        });
+        return {
+          featured, featChoices, featEmpty: featured.length === 0,
+          featEdit: st.featEdit, toggleFeatEdit: () => this.setState({ featEdit: !st.featEdit }),
+          featEditLabel: st.featEdit ? 'LISTO' : 'EDITAR',
+          featEditBg: st.featEdit ? '#1E9E5A' : '#eef1fb', featEditColor: st.featEdit ? '#fff' : '#1E52C7',
+          featCountLabel: `${st.featIds.length} de 3 seleccionadas`,
+        };
+      })(),
+
+      // progress chart, selectable by event
+      ...(() => {
+        const events = [...new Set(st.myTimes.map(t => t.event))];
+        const cur = events.includes(st.progEvent) ? st.progEvent : (events[0] || '');
+        const rows = st.myTimes.map(t => ({ ...t, secs: this.parseTime(t.time) })).filter(t => t.event === cur && t.secs != null);
+        const chrono = [...rows].reverse();
+        const secs = chrono.map(r => r.secs);
+        const best = secs.length ? Math.min(...secs) : null;
+        const diff = secs.length > 1 ? (secs[0] - secs[secs.length - 1]) : 0;
+        return {
+          progChips: events.map(ev => ({ label: ev, onPick: () => this.setState({ progEvent: ev }),
+            border: ev === cur ? '#DA1E28' : '#dbe1f0', bg: ev === cur ? '#DA1E28' : '#fff', color: ev === cur ? '#fff' : '#6b7599' })),
+          myProgressChart: secs.length > 1 ? this.lineChart(secs, '#DA1E28') : this.lineChart(secs.length ? [secs[0], secs[0]] : [0, 0], '#DA1E28'),
+          progSubtitle: rows.length ? `${rows.length} registros · mejora ${diff >= 0 ? '↓' : '↑'} ${Math.abs(diff).toFixed(1)} s` : 'Sin registros aún',
+        };
+      })(),
+
+      // forms
+      showSessForm: st.showSessForm, toggleSessForm: () => this.setState({ showSessForm: !st.showSessForm }),
+      ns: st.ns, onNsDay: setField('ns', 'day'), onNsFocus: setField('ns', 'focus'), onNsDist: setField('ns', 'dist'), onNsBody: setField('ns', 'body'), addSession,
+      showCompForm: st.showCompForm, toggleCompForm: () => this.setState({ showCompForm: !st.showCompForm }),
+      nc: st.nc, onNcName: setField('nc', 'name'), onNcDate: setField('nc', 'date'), onNcPlace: setField('nc', 'place'), addComp,
+      showTimeForm: st.showTimeForm, toggleTimeForm: () => this.setState({ showTimeForm: !st.showTimeForm }),
+      tf: st.tf, onTfEvent: setField('tf', 'event'),
+      onTfTime: (e) => this.setState({ tf: { ...st.tf, time: this.maskTime(e.target.value) } }),
+      onTfSplits: setField('tf', 'splits'),
+      tfSplitOpts: ['25', '50'].map(d => ({ label: d + ' m', onPick: () => this.setState({ tf: { ...st.tf, splitDist: d } }),
+        border: st.tf.splitDist === d ? '#0A1F5C' : '#dbe1f0', bg: st.tf.splitDist === d ? '#0A1F5C' : '#fff', color: st.tf.splitDist === d ? '#fff' : '#6b7599' })),
+      addTime,
+
+      // swimmer profile
+      me: st.me, meAge: this.ageFrom(st.me.birth) ?? '—', meCat: this.catFrom(st.me.birth),
+      onMe_nombre: meField('nombre'), onMe_rut: meField('rut'), onMe_birth: meField('birth'),
+      onMe_email: meField('email'), onMe_phone: meField('phone'),
+      onMe_style1: meField('style1'), onMe_style2: meField('style2'), onMe_ev1: meField('ev1'), onMe_ev2: meField('ev2'),
+      onMe_medical: meField('medical'), onMe_emergency: meField('emergency'),
+      rutBorder: rutOk ? '#dbe1f0' : '#DA1E28', rutMsg: rutOk ? 'RUT válido ✓' : 'Dígito verificador inválido', rutMsgColor: rutOk ? '#1E9E5A' : '#DA1E28',
+      saveProfile: () => this.setState({ saved: true }),
+      saveLabel: st.saved ? '✓ CAMBIOS GUARDADOS' : 'GUARDAR CAMBIOS',
+      showPinForm: st.showPinForm, togglePinForm: () => this.setState({ showPinForm: !st.showPinForm }),
+      pinFormLabel: st.showPinForm ? 'CANCELAR' : 'CAMBIAR PIN',
+      pinFormBg: st.showPinForm ? '#f7eaea' : '#eef1fb', pinFormColor: st.showPinForm ? '#DA1E28' : '#1E52C7',
+      pf, onPfNew: (e) => this.setState({ pf: { ...pf, new: e.target.value.replace(/\D/g, '').slice(0, 4) } }),
+      onPfRep: (e) => this.setState({ pf: { ...pf, rep: e.target.value.replace(/\D/g, '').slice(0, 4) } }),
+      pfBorder: (pf.rep && pf.new !== pf.rep) ? '#DA1E28' : '#dbe1f0',
+      pfMsg: !pf.new ? 'Ingresa un PIN de 4 dígitos' : pf.new.length < 4 ? 'El PIN debe tener 4 dígitos' : pf.new !== pf.rep ? 'Los PINs no coinciden' : 'PIN válido ✓',
+      pfMsgColor: pfValid ? '#1E9E5A' : '#9AA4C0',
+      savePin,
+    };
+  }
+}
+</script>
+</body>
+</html>
