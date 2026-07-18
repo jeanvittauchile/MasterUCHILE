@@ -54,22 +54,17 @@ npx supabase db reset      # aplica migraciones + seed.sql de una vez
 npx supabase status        # imprime URL, anon key, service_role key y JWT secret locales
 ```
 
-### Datos de ejemplo (`supabase/seed.sql`)
+### Datos iniciales (`supabase/seed.sql`)
 
-Un coach y 6 nadadores, con sesiones, torneos, marcas y evaluaciones espejo del prototipo. **PINs de demo:**
+Solo el coach real del equipo — sin nadadores, entrenamientos ni torneos de ejemplo (se usaron datos demo espejo del prototipo para verificar el despliegue end-to-end y luego se eliminaron de la base real; el seed ya no los recrea).
 
-| Usuario | Rol | PIN |
-|---|---|---|
-| Andrés Contreras | coach | `1234` |
-| Jean Paull Vitta (RUT 17.691.204-9) | coach | `1932` |
-| Valentina Rojas | swimmer | `4821` |
-| Matías Fuentes | swimmer | `1097` |
-| Camila Soto | swimmer | `3355` |
-| Diego Herrera | swimmer | `7788` |
-| Francisca Lagos | swimmer | `9012` |
-| Sebastián Núñez | swimmer | `6543` |
+| Usuario | Rol | RUT | PIN |
+|---|---|---|---|
+| Jean Paull Vitta | coach | `17.691.204-9` | `1932` |
 
-Login con el nombre completo (ej. "Valentina Rojas") o el RUT (ej. "17.845.221-5") + el PIN.
+El propio coach da de alta a nadadores, sesiones y torneos reales desde la app (Nadadores → alta individual o importación masiva pegando `Nombre, RUT`, lo que genera un PIN temporal por nadador que cada uno debe cambiar en su primer ingreso; Sesiones → + Nueva sesión; Torneos → + Agregar torneo).
+
+Login con el nombre completo (ej. "Jean Paull Vitta") o el RUT (ej. "17.691.204-9") + el PIN.
 
 ## 3. Backend (server/)
 
