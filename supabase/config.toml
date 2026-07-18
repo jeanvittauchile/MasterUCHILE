@@ -1,0 +1,27 @@
+project_id = "masteruchile"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+site_url = "http://localhost:8081"
+additional_redirect_urls = ["http://localhost:8081"]
+jwt_expiry = 3600
+enable_signup = false
+
+# Nota: usamos autenticación custom (RUT/nombre + PIN, firmada por server/src/services/jwt.service.ts
+# con el mismo JWT secret de este proyecto) en vez de Supabase Auth. `supabase status` imprime el
+# JWT secret local a usar como SUPABASE_JWT_SECRET en server/.env durante desarrollo.

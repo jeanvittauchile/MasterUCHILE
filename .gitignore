@@ -1,0 +1,39 @@
+node_modules/
+.env
+.env.local
+*.local
+
+# Expo
+app/.expo/
+app/dist/
+app/web-build/
+app/*.jks
+app/*.p8
+app/*.p12
+app/*.key
+app/*.mobileprovision
+
+# Server
+server/dist/
+
+# Shared
+packages/shared/dist/
+
+# Supabase
+supabase/.branches
+supabase/.temp
+
+# Logs
+npm-debug.log*
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/*
+!.vscode/extensions.json
+
+.vercel
+.env*

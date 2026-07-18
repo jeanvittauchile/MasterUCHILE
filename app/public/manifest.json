@@ -1,0 +1,21 @@
+{
+  "id": "/",
+  "name": "Natación Máster U. de Chile",
+  "short_name": "Nat. Máster",
+  "description": "Gestión del equipo máster de natación de la Universidad de Chile: sesiones, asistencia, torneos, evaluaciones técnicas y marcas.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0A1F5C",
+  "theme_color": "#0A1F5C",
+  "lang": "es-CL",
+  "dir": "ltr",
+  "categories": ["sports", "productivity"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

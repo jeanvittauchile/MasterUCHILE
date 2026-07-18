@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "Natación Máster UChile",
+    "slug": "natacion-master-uchile",
+    "scheme": "natacionmaster",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./src/assets/logo-natacion.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./src/assets/logo-natacion.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0A1F5C"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "cl.uchile.natacionmaster"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./src/assets/logo-natacion.png",
+        "backgroundColor": "#0A1F5C"
+      },
+      "package": "cl.uchile.natacionmaster"
+    },
+    "web": {
+      "favicon": "./src/assets/logo-natacion.png",
+      "bundler": "metro",
+      "themeColor": "#0A1F5C",
+      "backgroundColor": "#0A1F5C",
+      "description": "Gestión del equipo máster de natación de la Universidad de Chile: sesiones, asistencia, torneos, evaluaciones técnicas y marcas.",
+      "lang": "es"
+    },
+    "plugins": ["expo-font"]
+  }
+}
