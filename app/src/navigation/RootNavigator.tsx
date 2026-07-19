@@ -13,6 +13,7 @@ import { SessionDetailScreen } from '../screens/shared/SessionDetailScreen';
 import { TournamentDetailScreen } from '../screens/shared/TournamentDetailScreen';
 import { EvaluateDetailScreen } from '../screens/coach/EvaluateDetailScreen';
 import { MarkDetailScreen } from '../screens/swimmer/MarkDetailScreen';
+import { CoachesScreen } from '../screens/coach/CoachesScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -45,6 +46,7 @@ export function RootNavigator() {
           <Stack.Screen name="TournamentDetail" component={TournamentDetailScreen} />
           <Stack.Screen name="EvaluateDetail" component={EvaluateDetailScreen} />
           <Stack.Screen name="MarkDetail" component={MarkDetailScreen} />
+          {user?.rol === 'coach' ? <Stack.Screen name="Coaches" component={CoachesScreen} /> : null}
         </>
       )}
     </Stack.Navigator>

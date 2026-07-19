@@ -3,6 +3,7 @@ import express from 'express';
 import { env } from './db/env';
 import { errorHandler } from './middleware/errorHandler';
 import { authRoutes } from './routes/auth.routes';
+import { coachesRoutes } from './routes/coaches.routes';
 import { swimmersRoutes } from './routes/swimmers.routes';
 import { trainingsRoutes } from './routes/trainings.routes';
 import { tournamentsRoutes } from './routes/tournaments.routes';
@@ -17,6 +18,7 @@ export function createApp() {
 
   app.get('/health', (_req, res) => res.json({ ok: true }));
   app.use('/auth', authRoutes);
+  app.use('/coaches', coachesRoutes);
   app.use('/swimmers', swimmersRoutes);
   app.use('/trainings', trainingsRoutes);
   app.use('/tournaments', tournamentsRoutes);

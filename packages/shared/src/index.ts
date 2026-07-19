@@ -13,6 +13,7 @@ export * from './types/roles';
 export * from './types/db';
 
 export * from './schemas/auth.schema';
+export * from './schemas/coach.schema';
 export * from './schemas/swimmer.schema';
 export * from './schemas/training.schema';
 export * from './schemas/tournament.schema';

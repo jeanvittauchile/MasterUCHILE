@@ -63,6 +63,7 @@ export function SwimmerDetailScreen() {
   const age = typeof perfil.fecha_nacimiento === 'string' ? ageForSeason(perfil.fecha_nacimiento) : null;
 
   const fichaRows: { k: string; v: string }[] = [
+    { k: 'RUT', v: asText(sel.rut) },
     { k: 'Fecha de nacimiento', v: formatDate(perfil.fecha_nacimiento) },
     { k: 'Grupo', v: asText(perfil.grupo) },
     { k: 'Email', v: asText((perfil as Record<string, unknown>).email) },

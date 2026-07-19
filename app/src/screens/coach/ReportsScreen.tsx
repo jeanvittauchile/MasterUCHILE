@@ -82,6 +82,15 @@ export function ReportsScreen() {
             <Text style={styles.exportLink}>EXPORTAR REPORTE GENERAL (PDF) ↓</Text>
           </Pressable>
 
+          <Text style={styles.sectionTitle}>CUENTA</Text>
+          <Pressable style={styles.tourRow} onPress={() => navigation.navigate('Coaches')}>
+            <View>
+              <Text style={styles.tourName}>Entrenadores</Text>
+              <Text style={styles.tourMeta}>Agregar entrenador o recuperar un PIN olvidado</Text>
+            </View>
+            <Text style={styles.tourLink}>GESTIONAR ›</Text>
+          </Pressable>
+
           <Text style={styles.sectionTitle}>REPORTES DE TORNEO</Text>
           {tournaments.data?.tournaments.length ? (
             tournaments.data.tournaments.map((t) => (

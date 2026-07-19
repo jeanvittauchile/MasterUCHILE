@@ -8,6 +8,7 @@ export type RootStackParamList = {
   TournamentDetail: { tournamentId: string };
   EvaluateDetail: { swimmerId: string };
   MarkDetail: { prueba: string };
+  Coaches: undefined;
 };
 
 export type CoachTabParamList = {
