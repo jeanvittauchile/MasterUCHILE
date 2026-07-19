@@ -1,5 +1,12 @@
 import { Router } from 'express';
-import { createEntrySchema, createTournamentSchema, updateEntrySchema } from '@masteruchile/shared';
+import {
+  createEntrySchema,
+  createTournamentSchema,
+  importTournamentsSchema,
+  parseTournamentImportLine,
+  updateEntrySchema,
+  updateTournamentSchema,
+} from '@masteruchile/shared';
 import { asyncHandler } from '../lib/asyncHandler';
 import { supabaseForUser } from '../db/supabaseForUser';
 import { authenticate } from '../middleware/authenticate';
@@ -23,11 +30,76 @@ tournamentsRoutes.post(
   '/',
   requireRole('coach'),
   asyncHandler(async (req, res) => {
-    const input = createTournamentSchema.parse(req.body);
+    const { fechaFin, ...rest } = createTournamentSchema.parse(req.body);
     const db = supabaseForUser(req.token!);
-    const { data, error } = await db.from('tournaments').insert(input).select().single();
+    const { data, error } = await db
+      .from('tournaments')
+      .insert({ ...rest, fecha_fin: fechaFin ?? null })
+      .select()
+      .single();
     if (error) throw error;
     res.status(201).json(data);
+  }),
+);
+
+/**
+ * Importación masiva del calendario de torneos: una línea por torneo, ej.
+ * "24-26 Julio:  Nacional Master Invierno FECHIDA (Prioritario)." — ver
+ * packages/shared/src/domain/tournamentImport.ts para el formato tolerado. Filas que no calzan con
+ * el formato, o que Postgres rechaza, se reportan sin abortar el resto.
+ */
+tournamentsRoutes.post(
+  '/import',
+  requireRole('coach'),
+  asyncHandler(async (req, res) => {
+    const { text } = importTournamentsSchema.parse(req.body);
+    const db = supabaseForUser(req.token!);
+    const defaultYear = new Date().getFullYear();
+
+    const lines = text
+      .split('\n')
+      .map((l) => l.trim())
+      .filter(Boolean);
+
+    const imported: { nombre: string; fecha: string; fechaFin: string | null; prioritario: boolean }[] = [];
+    const rejected: { line: string; reason: string }[] = [];
+
+    for (const line of lines) {
+      const parsed = parseTournamentImportLine(line, defaultYear);
+      if (!parsed) {
+        rejected.push({ line, reason: 'No se pudo reconocer la fecha (formato esperado: "DD [de] Mes: Nombre")' });
+        continue;
+      }
+      const { error } = await db.from('tournaments').insert({
+        nombre: parsed.nombre,
+        fecha: parsed.fecha,
+        fecha_fin: parsed.fechaFin,
+        prioritario: parsed.prioritario,
+        estado: 'Planificada',
+      });
+      if (error) {
+        rejected.push({ line, reason: error.message });
+        continue;
+      }
+      imported.push(parsed);
+    }
+
+    res.json({ imported, rejected, count: imported.length });
+  }),
+);
+
+tournamentsRoutes.patch(
+  '/:id',
+  requireRole('coach'),
+  asyncHandler(async (req, res) => {
+    const { fechaFin, ...rest } = updateTournamentSchema.parse(req.body);
+    const db = supabaseForUser(req.token!);
+    const payload: Record<string, unknown> = { ...rest };
+    if (fechaFin !== undefined) payload.fecha_fin = fechaFin;
+
+    const { data, error } = await db.from('tournaments').update(payload).eq('id', req.params.id).select().single();
+    if (error) throw error;
+    res.json(data);
   }),
 );
 

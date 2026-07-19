@@ -56,8 +56,10 @@ export interface TournamentRow {
   id: string;
   nombre: string;
   fecha: string | null;
+  fecha_fin: string | null;
   lugar: string | null;
   estado: string;
+  prioritario: boolean;
 }
 
 export interface TournamentEntryRow {

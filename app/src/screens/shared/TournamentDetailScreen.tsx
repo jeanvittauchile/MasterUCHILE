@@ -62,9 +62,14 @@ export function TournamentDetailScreen() {
     <ScreenLayout title={selC.nombre}>
       <View style={styles.headerCard}>
         <Text style={styles.headerMeta}>
-          {selC.fecha ?? '—'} · {selC.lugar ?? '—'}
+          {selC.fecha ?? '—'}
+          {selC.fecha_fin && selC.fecha_fin !== selC.fecha ? ` – ${selC.fecha_fin}` : ''}
+          {selC.lugar ? ` · ${selC.lugar}` : ''}
         </Text>
-        <Text style={styles.headerTitle}>{selC.nombre}</Text>
+        <Text style={styles.headerTitle}>
+          {selC.prioritario ? '★ ' : ''}
+          {selC.nombre}
+        </Text>
         <View style={styles.headerTag}>
           <Text style={styles.headerTagText}>{selC.estado}</Text>
         </View>

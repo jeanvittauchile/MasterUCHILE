@@ -7,6 +7,7 @@ export * from './validation/time';
 export * from './domain/age';
 export * from './domain/results';
 export * from './domain/evaluation';
+export * from './domain/tournamentImport';
 
 export * from './types/roles';
 export * from './types/db';
