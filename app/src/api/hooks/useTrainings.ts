@@ -38,6 +38,26 @@ export function useCreateTraining() {
   });
 }
 
+export function useUpdateTraining(trainingId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: Partial<{ fecha: string; hora: string; foco: string; distancia_total: number; grupo: TrainingGroup; sets: string[] }>) =>
+      apiFetch<Training>(`/trainings/${trainingId}`, { method: 'PATCH', body: input }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['training', trainingId] });
+      qc.invalidateQueries({ queryKey: ['trainings'] });
+    },
+  });
+}
+
+export function useDeleteTraining() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (trainingId: string) => apiFetch<void>(`/trainings/${trainingId}`, { method: 'DELETE' }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['trainings'] }),
+  });
+}
+
 export function useConfirmAttendance(trainingId: string) {
   const qc = useQueryClient();
   return useMutation({

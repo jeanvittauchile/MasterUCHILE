@@ -10,6 +10,9 @@ export const createTrainingSchema = z.object({
 });
 export type CreateTrainingInput = z.infer<typeof createTrainingSchema>;
 
+export const updateTrainingSchema = createTrainingSchema.partial();
+export type UpdateTrainingInput = z.infer<typeof updateTrainingSchema>;
+
 export const updateAttendanceSchema = z.object({
   estado: z.enum(['confirmado', 'declinado', 'sin_responder', 'asistio', 'falto']),
 });

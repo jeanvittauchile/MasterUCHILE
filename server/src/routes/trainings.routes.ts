@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createTrainingSchema, updateAttendanceSchema } from '@masteruchile/shared';
+import { createTrainingSchema, updateAttendanceSchema, updateTrainingSchema } from '@masteruchile/shared';
 import { asyncHandler } from '../lib/asyncHandler';
 import { badRequest, notFound } from '../lib/httpErrors';
 import { supabaseForUser } from '../db/supabaseForUser';
@@ -84,6 +84,39 @@ trainingsRoutes.post(
     }
 
     res.status(201).json(training);
+  }),
+);
+
+/** Edita los datos de la sesión ya guardada. No resincroniza training_attendance (el grupo pudo cambiar
+ * pero las confirmaciones ya registradas de los nadadores no se tocan). */
+trainingsRoutes.patch(
+  '/:id',
+  requireRole('coach'),
+  asyncHandler(async (req, res) => {
+    const input = updateTrainingSchema.parse(req.body);
+    const db = supabaseForUser(req.token!);
+    const { data, error } = await db
+      .from('trainings')
+      .update(input)
+      .eq('id', req.params.id)
+      .select()
+      .maybeSingle();
+    if (error) throw error;
+    if (!data) throw notFound('Sesión no encontrada');
+    res.json(data);
+  }),
+);
+
+/** Elimina la sesión; training_attendance se borra en cascada (FK on delete cascade). */
+trainingsRoutes.delete(
+  '/:id',
+  requireRole('coach'),
+  asyncHandler(async (req, res) => {
+    const db = supabaseForUser(req.token!);
+    const { data, error } = await db.from('trainings').delete().eq('id', req.params.id).select().maybeSingle();
+    if (error) throw error;
+    if (!data) throw notFound('Sesión no encontrada');
+    res.status(204).send();
   }),
 );
 
