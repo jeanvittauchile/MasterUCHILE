@@ -9,6 +9,7 @@ import { Pill } from '../../components/ui/Pill';
 import { Avatar } from '../../components/ui/Avatar';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { BarChart } from '../../components/charts/BarChart';
+import { GroupedBarChart } from '../../components/charts/GroupedBarChart';
 import { useSwimmers } from '../../api/hooks/useSwimmers';
 import { useTrainings } from '../../api/hooks/useTrainings';
 import { useTournaments } from '../../api/hooks/useTournaments';
@@ -56,6 +57,32 @@ export function HomeScreen() {
     return byGroup;
   }, [trainings.data]);
 
+  const attendanceTotals = useMemo(() => {
+    let confirmed = 0;
+    let notConfirmed = 0;
+    for (const t of trainings.data?.trainings ?? []) {
+      for (const att of t.attendance ?? []) {
+        if (att.estado === 'confirmado' || att.estado === 'asistio') confirmed += 1;
+        else notConfirmed += 1;
+      }
+    }
+    return { confirmed, notConfirmed };
+  }, [trainings.data]);
+
+  const confirmationsBySession = useMemo(
+    () =>
+      (trainings.data?.trainings ?? []).slice(-8).map((t) => {
+        let a = 0;
+        let b = 0;
+        for (const att of t.attendance ?? []) {
+          if (att.estado === 'confirmado' || att.estado === 'asistio') a += 1;
+          else b += 1;
+        }
+        return { label: t.fecha.slice(5), a, b };
+      }),
+    [trainings.data],
+  );
+
   if (swimmers.isLoading || trainings.isLoading) {
     return (
       <ScreenLayout title="Inicio">
@@ -99,6 +126,21 @@ export function HomeScreen() {
           <BarChart data={volume.data.weeks.map((w) => ({ label: w.week.slice(5), value: w.meters }))} />
         ) : (
           <EmptyState message="Aún no hay sesiones registradas para graficar volumen." />
+        )}
+      </Card>
+
+      <Card>
+        <View style={styles.cardHeaderRow}>
+          <Text style={styles.cardTitle}>CONFIRMACIONES POR SESIÓN</Text>
+        </View>
+        <View style={styles.kpiRow}>
+          <KpiTile value={String(attendanceTotals.confirmed)} label="Confirmados/asistidos" color={colors.green} />
+          <KpiTile value={String(attendanceTotals.notConfirmed)} label="No confirmados" color={colors.red} />
+        </View>
+        {confirmationsBySession.length ? (
+          <GroupedBarChart data={confirmationsBySession} legendA="Confirmados/asistidos" legendB="No confirmados" />
+        ) : (
+          <EmptyState message="Aún no hay sesiones con nadadores asignados." />
         )}
       </Card>
 

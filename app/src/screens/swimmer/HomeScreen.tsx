@@ -7,6 +7,7 @@ import { ScreenLayout } from '../../components/ui/ScreenLayout';
 import { Card } from '../../components/ui/Card';
 import { KpiTile } from '../../components/ui/KpiTile';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { BarChart } from '../../components/charts/BarChart';
 import { useSwimmerFicha, useSetFeaturedMarks, type SwimmerFicha } from '../../api/hooks/useSwimmers';
 import { useTrainings } from '../../api/hooks/useTrainings';
 import { useTournaments } from '../../api/hooks/useTournaments';
@@ -70,6 +71,18 @@ export function HomeScreen() {
 
   const results = ficha.data?.results ?? [];
   const pbCount = results.filter((r) => r.es_pb).length;
+
+  const myConfirmations = useMemo(() => {
+    let confirmed = 0;
+    let notConfirmed = 0;
+    for (const t of trainings.data?.trainings ?? []) {
+      if (t.grupo !== 'Ambos' && t.grupo !== myGroup) continue;
+      const estado = t.attendance?.[0]?.estado;
+      if (estado === 'confirmado' || estado === 'asistio') confirmed += 1;
+      else notConfirmed += 1;
+    }
+    return { confirmed, notConfirmed };
+  }, [trainings.data, myGroup]);
 
   const toggleFeatured = (id: string) => {
     setFeaturedIds((prev) => {
@@ -136,6 +149,20 @@ export function HomeScreen() {
           </>
         ) : (
           <Text style={styles.tournamentMeta}>No hay torneos programados por ahora.</Text>
+        )}
+      </Card>
+
+      <Card>
+        <Text style={styles.cardTitle}>MIS CONFIRMACIONES</Text>
+        {myConfirmations.confirmed + myConfirmations.notConfirmed > 0 ? (
+          <BarChart
+            data={[
+              { label: 'Confirmadas', value: myConfirmations.confirmed, color: colors.green },
+              { label: 'No confirmadas', value: myConfirmations.notConfirmed, color: colors.red },
+            ]}
+          />
+        ) : (
+          <EmptyState message="Aún no tienes entrenamientos asignados." />
         )}
       </Card>
 

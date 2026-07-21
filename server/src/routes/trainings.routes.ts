@@ -22,7 +22,36 @@ trainingsRoutes.get(
     if (req.query.to) query = query.lte('fecha', String(req.query.to));
     const { data, error } = await query;
     if (error) throw error;
-    res.json({ trainings: data ?? [] });
+    const trainings = data ?? [];
+
+    if (trainings.length) {
+      const ids = trainings.map((t) => t.id);
+      const attendanceQuery =
+        req.user!.role === 'coach'
+          ? db
+              .from('training_attendance')
+              .select('training_id, swimmer_id, estado, confirmado_en, users(nombre)')
+              .in('training_id', ids)
+          : db
+              .from('training_attendance')
+              .select('training_id, swimmer_id, estado, confirmado_en')
+              .in('training_id', ids)
+              .eq('swimmer_id', req.user!.id);
+      const { data: attendance, error: attError } = await attendanceQuery;
+      if (attError) throw attError;
+
+      const byTraining = new Map<string, typeof attendance>();
+      for (const row of attendance ?? []) {
+        const list = byTraining.get(row.training_id) ?? [];
+        list.push(row);
+        byTraining.set(row.training_id, list);
+      }
+      for (const t of trainings as any[]) {
+        t.attendance = byTraining.get(t.id) ?? [];
+      }
+    }
+
+    res.json({ trainings });
   }),
 );
 

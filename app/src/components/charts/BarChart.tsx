@@ -6,6 +6,7 @@ import { colors, fonts } from '../../theme/tokens';
 export interface BarDatum {
   label: string;
   value: number;
+  color?: string;
 }
 
 export function BarChart({
@@ -27,7 +28,7 @@ export function BarChart({
         {data.map((d, i) => {
           const barHeight = (d.value / max) * 78;
           const x = i * 40 + barGap / 2;
-          return <Rect key={`${d.label}-${i}`} x={x} y={82 - barHeight} width={40 - barGap} height={barHeight} rx={4} fill={color} />;
+          return <Rect key={`${d.label}-${i}`} x={x} y={82 - barHeight} width={40 - barGap} height={barHeight} rx={4} fill={d.color ?? color} />;
         })}
       </Svg>
       <View style={{ flexDirection: 'row', marginTop: 4 }}>
