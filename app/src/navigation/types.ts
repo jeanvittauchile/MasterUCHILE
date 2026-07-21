@@ -7,6 +7,7 @@ export type RootStackParamList = {
   SessionDetail: { trainingId: string };
   TournamentDetail: { tournamentId: string };
   EvaluateDetail: { swimmerId: string };
+  TechnicalEvaluateDetail: { swimmerId: string; tipo: 'viraje' | 'salida' };
   MarkDetail: { prueba: string };
   Coaches: undefined;
 };

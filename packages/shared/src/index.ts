@@ -7,6 +7,7 @@ export * from './validation/time';
 export * from './domain/age';
 export * from './domain/results';
 export * from './domain/evaluation';
+export * from './domain/technicalEvaluation';
 export * from './domain/tournamentImport';
 
 export * from './types/roles';
@@ -19,3 +20,4 @@ export * from './schemas/training.schema';
 export * from './schemas/tournament.schema';
 export * from './schemas/result.schema';
 export * from './schemas/evaluation.schema';
+export * from './schemas/technicalEvaluation.schema';

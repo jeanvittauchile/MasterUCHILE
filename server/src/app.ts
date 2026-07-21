@@ -9,6 +9,7 @@ import { trainingsRoutes } from './routes/trainings.routes';
 import { tournamentsRoutes } from './routes/tournaments.routes';
 import { resultsRoutes } from './routes/results.routes';
 import { evaluationsRoutes } from './routes/evaluations.routes';
+import { technicalEvaluationsRoutes } from './routes/technicalEvaluations.routes';
 import { reportsRoutes } from './routes/reports.routes';
 
 export function createApp() {
@@ -24,6 +25,7 @@ export function createApp() {
   app.use('/tournaments', tournamentsRoutes);
   app.use('/results', resultsRoutes);
   app.use('/evaluations', evaluationsRoutes);
+  app.use('/technical-evaluations', technicalEvaluationsRoutes);
   app.use('/reports', reportsRoutes);
 
   app.use(errorHandler);

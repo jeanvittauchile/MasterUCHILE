@@ -7,6 +7,7 @@ import type {
   UserRole,
 } from './roles';
 import type { EvaluationScores } from '../domain/evaluation';
+import type { TechnicalEvaluationType } from '../domain/technicalEvaluation';
 
 export interface UserRow {
   id: string;
@@ -87,6 +88,25 @@ export interface EvaluationRow {
   scores: EvaluationScores;
   nota: string | null;
   creado_por: string | null;
+}
+
+export interface TechnicalEvaluationRow {
+  id: string;
+  swimmer_id: string;
+  tipo: TechnicalEvaluationType;
+  fecha: string;
+  nota: string | null;
+  creado_por: string | null;
+}
+
+export interface TechnicalEvaluationAttemptRow {
+  id: string;
+  evaluation_id: string;
+  numero_intento: number;
+  tiempo_centesimas: number;
+  brazadas: number | null;
+  patadas: number | null;
+  subacuatico: number | null;
 }
 
 export interface AuditLogRow {

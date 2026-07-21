@@ -12,6 +12,7 @@ import { SwimmerDetailScreen } from '../screens/coach/SwimmerDetailScreen';
 import { SessionDetailScreen } from '../screens/shared/SessionDetailScreen';
 import { TournamentDetailScreen } from '../screens/shared/TournamentDetailScreen';
 import { EvaluateDetailScreen } from '../screens/coach/EvaluateDetailScreen';
+import { TechnicalEvaluateDetailScreen } from '../screens/coach/TechnicalEvaluateDetailScreen';
 import { MarkDetailScreen } from '../screens/swimmer/MarkDetailScreen';
 import { CoachesScreen } from '../screens/coach/CoachesScreen';
 
@@ -45,6 +46,7 @@ export function RootNavigator() {
           <Stack.Screen name="SessionDetail" component={SessionDetailScreen} />
           <Stack.Screen name="TournamentDetail" component={TournamentDetailScreen} />
           <Stack.Screen name="EvaluateDetail" component={EvaluateDetailScreen} />
+          <Stack.Screen name="TechnicalEvaluateDetail" component={TechnicalEvaluateDetailScreen} />
           <Stack.Screen name="MarkDetail" component={MarkDetailScreen} />
           {user?.rol === 'coach' ? <Stack.Screen name="Coaches" component={CoachesScreen} /> : null}
         </>
