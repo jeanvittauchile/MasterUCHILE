@@ -30,9 +30,10 @@ function longDate(iso: string, hora?: string | null) {
   return hora ? `${label} · ${hora}` : label;
 }
 
+// La confirmación del nadador ES la asistencia: sin confirmar (o habiendo declinado) queda inasistente.
 const ATTENDANCE_LABEL: Record<string, { label: string; color: string }> = {
   confirmado: { label: 'Confirmado', color: colors.green },
-  declinado: { label: 'No puede', color: colors.red },
+  asistio: { label: 'Confirmado', color: colors.green },
 };
 
 /** Lista de entrenamientos asignados al grupo del nadador, con su estado de confirmación. */
@@ -64,7 +65,7 @@ export function SessionsScreen() {
         sessions.map((s) => {
           const badge = dayBadge(s.fecha);
           const estado = s.attendance?.[0]?.estado;
-          const conf = (estado ? ATTENDANCE_LABEL[estado] : undefined) ?? { label: 'Sin responder', color: colors.textTertiary };
+          const conf = (estado ? ATTENDANCE_LABEL[estado] : undefined) ?? { label: 'Inasistente', color: colors.red };
           return (
             <Pressable key={s.id} style={styles.row} onPress={() => navigation.navigate('SessionDetail', { trainingId: s.id })}>
               <View style={styles.dayBox}>

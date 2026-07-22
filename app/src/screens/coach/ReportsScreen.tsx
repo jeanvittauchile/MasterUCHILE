@@ -6,14 +6,17 @@ import { ScreenLayout } from '../../components/ui/ScreenLayout';
 import { Card } from '../../components/ui/Card';
 import { Avatar } from '../../components/ui/Avatar';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { PrimaryButton } from '../../components/ui/PrimaryButton';
 import { BarChart } from '../../components/charts/BarChart';
 import { useGeneralTournamentReport, useWeeklyAttendance, useWeeklyVolume, generalTournamentPdfUrl } from '../../api/hooks/useReports';
 import { useTournaments } from '../../api/hooks/useTournaments';
+import { useAuthStore } from '../../store/authStore';
 import { colors, fonts } from '../../theme/tokens';
 import type { RootStackParamList } from '../../navigation/types';
 
 export function ReportsScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const logout = useAuthStore((s) => s.logout);
   const volume = useWeeklyVolume();
   const attendance = useWeeklyAttendance();
   const general = useGeneralTournamentReport();
@@ -90,6 +93,7 @@ export function ReportsScreen() {
             </View>
             <Text style={styles.tourLink}>GESTIONAR ›</Text>
           </Pressable>
+          <PrimaryButton label="CERRAR SESIÓN" variant="outline" onPress={logout} />
 
           <Text style={styles.sectionTitle}>REPORTES DE TORNEO</Text>
           {tournaments.data?.tournaments.length ? (

@@ -13,7 +13,6 @@ import { FormField } from '../../components/forms/FormField';
 import {
   useConfirmAttendance,
   useDeleteTraining,
-  useMarkAttendance,
   useTrainingDetail,
   useUpdateTraining,
 } from '../../api/hooks/useTrainings';
@@ -30,7 +29,6 @@ export function SessionDetailScreen() {
   const user = useAuthStore((s) => s.user);
   const training = useTrainingDetail(trainingId);
   const confirmAttendance = useConfirmAttendance(trainingId);
-  const markAttendance = useMarkAttendance(trainingId);
   const updateTraining = useUpdateTraining(trainingId);
   const deleteTraining = useDeleteTraining();
 
@@ -194,35 +192,16 @@ export function SessionDetailScreen() {
           {!selS.attendance || selS.attendance.length === 0 ? (
             <EmptyState message="Aún no hay confirmaciones registradas para esta sesión." />
           ) : (
-            selS.attendance.map((a) => (
-              <View key={a.swimmer_id} style={styles.attendanceRow}>
-                <Text style={styles.attendanceName}>{a.users?.nombre ?? '—'}</Text>
-                <Pill
-                  label={a.estado}
-                  bg={
-                    a.estado === 'confirmado' || a.estado === 'asistio'
-                      ? colors.green
-                      : a.estado === 'declinado' || a.estado === 'falto'
-                        ? colors.red
-                        : colors.textTertiary
-                  }
-                />
-                <View style={{ flexDirection: 'row', gap: 6 }}>
-                  <Pressable
-                    style={styles.miniBtn}
-                    onPress={() => markAttendance.mutate({ swimmerId: a.swimmer_id, estado: 'asistio' })}
-                  >
-                    <Text style={styles.miniBtnText}>Asistió</Text>
-                  </Pressable>
-                  <Pressable
-                    style={styles.miniBtn}
-                    onPress={() => markAttendance.mutate({ swimmerId: a.swimmer_id, estado: 'falto' })}
-                  >
-                    <Text style={styles.miniBtnText}>Faltó</Text>
-                  </Pressable>
+            selS.attendance.map((a) => {
+              // La confirmación del nadador ES la asistencia: quien no confirma queda inasistente.
+              const confirmed = a.estado === 'confirmado' || a.estado === 'asistio';
+              return (
+                <View key={a.swimmer_id} style={styles.attendanceRow}>
+                  <Text style={styles.attendanceName}>{a.users?.nombre ?? '—'}</Text>
+                  <Pill label={confirmed ? 'Confirmado' : 'Inasistente'} bg={confirmed ? colors.green : colors.red} />
                 </View>
-              </View>
-            ))
+              );
+            })
           )}
         </Card>
       ) : null}
@@ -275,8 +254,6 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.separator,
   },
   attendanceName: { flex: 1, fontFamily: fonts.barlowSemiBold, fontSize: 14, color: colors.navy },
-  miniBtn: { borderWidth: 1, borderColor: colors.border, borderRadius: 8, paddingVertical: 5, paddingHorizontal: 8 },
-  miniBtnText: { fontFamily: fonts.barlowSemiBold, fontSize: 11, color: colors.textSecondary },
   setRow: {
     flexDirection: 'row',
     gap: 12,

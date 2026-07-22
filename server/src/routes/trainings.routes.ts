@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { createTrainingSchema, updateAttendanceSchema, updateTrainingSchema } from '@masteruchile/shared';
 import { asyncHandler } from '../lib/asyncHandler';
-import { badRequest, notFound } from '../lib/httpErrors';
+import { notFound } from '../lib/httpErrors';
 import { supabaseForUser } from '../db/supabaseForUser';
 import { authenticate } from '../middleware/authenticate';
 import { requireRole } from '../middleware/requireRole';
@@ -149,40 +149,18 @@ trainingsRoutes.delete(
   }),
 );
 
-/** El propio nadador confirma o declina su asistencia a una sesión. */
+/** El propio nadador confirma o declina su asistencia a una sesión; esa confirmación ES la asistencia. */
 trainingsRoutes.patch(
   '/:id/attendance/me',
   requireRole('swimmer'),
   asyncHandler(async (req, res) => {
     const { estado } = updateAttendanceSchema.parse(req.body);
-    if (!['confirmado', 'declinado'].includes(estado)) {
-      throw badRequest('Estado inválido para auto-confirmación (usa confirmado o declinado)');
-    }
     const db = supabaseForUser(req.token!);
     const { data, error } = await db
       .from('training_attendance')
       .update({ estado, confirmado_en: new Date().toISOString() })
       .eq('training_id', req.params.id)
       .eq('swimmer_id', req.user!.id)
-      .select()
-      .single();
-    if (error) throw error;
-    res.json(data);
-  }),
-);
-
-/** El entrenador registra asistencia real post-sesión (asistió/faltó) para cualquier nadador. */
-trainingsRoutes.patch(
-  '/:id/attendance/:swimmerId',
-  requireRole('coach'),
-  asyncHandler(async (req, res) => {
-    const { estado } = updateAttendanceSchema.parse(req.body);
-    const db = supabaseForUser(req.token!);
-    const { data, error } = await db
-      .from('training_attendance')
-      .update({ estado, confirmado_en: new Date().toISOString() })
-      .eq('training_id', req.params.id)
-      .eq('swimmer_id', req.params.swimmerId)
       .select()
       .single();
     if (error) throw error;

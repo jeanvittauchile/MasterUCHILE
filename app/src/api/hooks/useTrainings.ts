@@ -69,12 +69,3 @@ export function useConfirmAttendance(trainingId: string) {
     },
   });
 }
-
-export function useMarkAttendance(trainingId: string) {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ swimmerId, estado }: { swimmerId: string; estado: string }) =>
-      apiFetch(`/trainings/${trainingId}/attendance/${swimmerId}`, { method: 'PATCH', body: { estado } }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['training', trainingId] }),
-  });
-}
