@@ -43,13 +43,21 @@ export function HomeScreen() {
   const today = todayIso();
   const myGroup = ficha.data?.perfil?.grupo as string | undefined;
 
-  const nextSession = useMemo(
+  const mySessions = useMemo(
     () =>
       (trainings.data?.trainings ?? [])
-        .filter((t) => t.fecha >= today && (t.grupo === 'Ambos' || t.grupo === myGroup))
-        .sort((a, b) => a.fecha.localeCompare(b.fecha))[0],
-    [trainings.data, today, myGroup],
+        .filter((t) => t.grupo === 'Ambos' || t.grupo === myGroup)
+        .sort((a, b) => a.fecha.localeCompare(b.fecha) || (a.hora ?? '').localeCompare(b.hora ?? '')),
+    [trainings.data, myGroup],
   );
+  const defaultSessionIndex = useMemo(() => {
+    if (!mySessions.length) return -1;
+    const idx = mySessions.findIndex((t) => t.fecha >= today);
+    return idx === -1 ? mySessions.length - 1 : idx;
+  }, [mySessions, today]);
+  const [manualSessionIndex, setManualSessionIndex] = useState<number | null>(null);
+  const sessionIndex = manualSessionIndex ?? defaultSessionIndex;
+  const nextSession = sessionIndex >= 0 ? mySessions[sessionIndex] : undefined;
 
   const nextTournament = useMemo(
     () =>
@@ -103,24 +111,43 @@ export function HomeScreen() {
       </View>
 
       {nextSession ? (
-        <Pressable onPress={() => navigation.navigate('SessionDetail', { trainingId: nextSession.id })}>
-          <LinearGradient
-            colors={[colors.navy, colors.navySecondary]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.nextCard}
+        <View style={styles.nextRow}>
+          <Pressable
+            style={[styles.navArrow, sessionIndex <= 0 && styles.navArrowDisabled]}
+            disabled={sessionIndex <= 0}
+            onPress={() => setManualSessionIndex(Math.max(0, sessionIndex - 1))}
           >
-            <Text style={styles.nextLabel}>TU PRÓXIMO ENTRENAMIENTO</Text>
-            <Text style={styles.nextTitle}>{nextSession.foco ?? 'Entrenamiento'}</Text>
-            <Text style={styles.nextMeta}>
-              {shortDate(nextSession.fecha)}
-              {nextSession.fecha === today ? ' · Hoy' : ''} {nextSession.hora ?? ''} · {nextSession.distancia_total ?? 0} m
-            </Text>
-            <View style={styles.nextBtn}>
-              <Text style={styles.nextBtnLabel}>Ver y confirmar asistencia →</Text>
-            </View>
-          </LinearGradient>
-        </Pressable>
+            <Text style={styles.navArrowText}>‹</Text>
+          </Pressable>
+          <Pressable
+            style={{ flex: 1 }}
+            onPress={() => navigation.navigate('SessionDetail', { trainingId: nextSession.id })}
+          >
+            <LinearGradient
+              colors={[colors.navy, colors.navySecondary]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.nextCard}
+            >
+              <Text style={styles.nextLabel}>TU PRÓXIMO ENTRENAMIENTO</Text>
+              <Text style={styles.nextTitle}>{nextSession.foco ?? 'Entrenamiento'}</Text>
+              <Text style={styles.nextMeta}>
+                {shortDate(nextSession.fecha)}
+                {nextSession.fecha === today ? ' · Hoy' : ''} {nextSession.hora ?? ''} · {nextSession.distancia_total ?? 0} m
+              </Text>
+              <View style={styles.nextBtn}>
+                <Text style={styles.nextBtnLabel}>Ver y confirmar asistencia →</Text>
+              </View>
+            </LinearGradient>
+          </Pressable>
+          <Pressable
+            style={[styles.navArrow, sessionIndex >= mySessions.length - 1 && styles.navArrowDisabled]}
+            disabled={sessionIndex >= mySessions.length - 1}
+            onPress={() => setManualSessionIndex(Math.min(mySessions.length - 1, sessionIndex + 1))}
+          >
+            <Text style={styles.navArrowText}>›</Text>
+          </Pressable>
+        </View>
       ) : (
         <EmptyState message="No tienes próximos entrenamientos asignados." />
       )}
@@ -223,7 +250,19 @@ export function HomeScreen() {
 const styles = StyleSheet.create({
   greeting: { fontFamily: fonts.oswaldSemiBold, fontSize: 26, color: colors.navy },
   dateLine: { fontFamily: fonts.barlowRegular, fontSize: 14, color: colors.textSecondary, marginTop: 4 },
+  nextRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   nextCard: { borderRadius: radii.card, padding: 18, ...shadows.cta },
+  navArrow: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...shadows.card,
+  },
+  navArrowDisabled: { opacity: 0.35 },
+  navArrowText: { fontFamily: fonts.oswaldBold, fontSize: 18, color: colors.navy },
   nextLabel: { fontFamily: fonts.barlowSemiBold, fontSize: 12, color: colors.white, letterSpacing: 1.5, opacity: 0.85 },
   nextTitle: { fontFamily: fonts.oswaldBold, fontSize: 24, color: colors.white, marginTop: 6 },
   nextMeta: { fontFamily: fonts.barlowRegular, fontSize: 14, color: colors.white, opacity: 0.9, marginTop: 2 },

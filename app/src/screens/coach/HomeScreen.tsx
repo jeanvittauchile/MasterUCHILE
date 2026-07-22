@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigation, type CompositeNavigationProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -17,7 +17,7 @@ import { useTournaments } from '../../api/hooks/useTournaments';
 import { useWeeklyVolume } from '../../api/hooks/useReports';
 import { useAuthStore } from '../../store/authStore';
 import { todayIso, shortDate } from '../../lib/date';
-import { colors, fonts, groupTone, radii } from '../../theme/tokens';
+import { colors, fonts, groupTone, radii, shadows } from '../../theme/tokens';
 import type { RootStackParamList, CoachTabParamList } from '../../navigation/types';
 
 type Nav = CompositeNavigationProp<BottomTabNavigationProp<CoachTabParamList>, NativeStackNavigationProp<RootStackParamList>>;
@@ -32,9 +32,22 @@ export function HomeScreen() {
 
   const today = todayIso();
   const todaysSessions = (trainings.data?.trainings ?? []).filter((t) => t.fecha === today);
-  const nextSession = (trainings.data?.trainings ?? [])
-    .filter((t) => t.fecha >= today)
-    .sort((a, b) => a.fecha.localeCompare(b.fecha))[0];
+
+  const sortedTrainings = useMemo(
+    () =>
+      [...(trainings.data?.trainings ?? [])].sort(
+        (a, b) => a.fecha.localeCompare(b.fecha) || (a.hora ?? '').localeCompare(b.hora ?? ''),
+      ),
+    [trainings.data],
+  );
+  const defaultSessionIndex = useMemo(() => {
+    if (!sortedTrainings.length) return -1;
+    const idx = sortedTrainings.findIndex((t) => t.fecha >= today);
+    return idx === -1 ? sortedTrainings.length - 1 : idx;
+  }, [sortedTrainings, today]);
+  const [manualSessionIndex, setManualSessionIndex] = useState<number | null>(null);
+  const sessionIndex = manualSessionIndex ?? defaultSessionIndex;
+  const nextSession = sessionIndex >= 0 ? sortedTrainings[sessionIndex] : undefined;
 
   const activeTournaments = (tournaments.data?.tournaments ?? []).filter((t) => !t.fecha || t.fecha >= today).length;
 
@@ -101,17 +114,36 @@ export function HomeScreen() {
       </View>
 
       {nextSession ? (
-        <Pressable style={styles.nextCard} onPress={() => navigation.navigate('SessionDetail', { trainingId: nextSession.id })}>
-          <Text style={styles.nextLabel}>
-            PRÓXIMA SESIÓN · {shortDate(nextSession.fecha)}
-            {nextSession.fecha === today ? ' · HOY' : ''} {nextSession.hora ?? ''}
-          </Text>
-          <Text style={styles.nextTitle}>{nextSession.foco}</Text>
-          <Text style={styles.nextMeta}>
-            {nextSession.distancia_total ?? 0} m · Grupo {nextSession.grupo}
-          </Text>
-          <Text style={styles.nextLink}>Ver entrenamiento completo →</Text>
-        </Pressable>
+        <View style={styles.nextRow}>
+          <Pressable
+            style={[styles.navArrow, sessionIndex <= 0 && styles.navArrowDisabled]}
+            disabled={sessionIndex <= 0}
+            onPress={() => setManualSessionIndex(Math.max(0, sessionIndex - 1))}
+          >
+            <Text style={styles.navArrowText}>‹</Text>
+          </Pressable>
+          <Pressable
+            style={[styles.nextCard, { flex: 1 }]}
+            onPress={() => navigation.navigate('SessionDetail', { trainingId: nextSession.id })}
+          >
+            <Text style={styles.nextLabel}>
+              PRÓXIMA SESIÓN · {shortDate(nextSession.fecha)}
+              {nextSession.fecha === today ? ' · HOY' : ''} {nextSession.hora ?? ''}
+            </Text>
+            <Text style={styles.nextTitle}>{nextSession.foco}</Text>
+            <Text style={styles.nextMeta}>
+              {nextSession.distancia_total ?? 0} m · Grupo {nextSession.grupo}
+            </Text>
+            <Text style={styles.nextLink}>Ver entrenamiento completo →</Text>
+          </Pressable>
+          <Pressable
+            style={[styles.navArrow, sessionIndex >= sortedTrainings.length - 1 && styles.navArrowDisabled]}
+            disabled={sessionIndex >= sortedTrainings.length - 1}
+            onPress={() => setManualSessionIndex(Math.min(sortedTrainings.length - 1, sessionIndex + 1))}
+          >
+            <Text style={styles.navArrowText}>›</Text>
+          </Pressable>
+        </View>
       ) : (
         <EmptyState message="No hay próximas sesiones. Programa una desde la pestaña Sesiones." />
       )}
@@ -182,7 +214,19 @@ export function HomeScreen() {
 const styles = StyleSheet.create({
   greeting: { fontFamily: fonts.oswaldSemiBold, fontSize: 26, color: colors.navy },
   dateLine: { fontFamily: fonts.barlowRegular, fontSize: 14, color: colors.textSecondary, marginTop: 4 },
+  nextRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   nextCard: { backgroundColor: colors.red, borderRadius: radii.card, padding: 18 },
+  navArrow: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...shadows.card,
+  },
+  navArrowDisabled: { opacity: 0.35 },
+  navArrowText: { fontFamily: fonts.oswaldBold, fontSize: 18, color: colors.navy },
   nextLabel: { fontFamily: fonts.barlowSemiBold, fontSize: 12, color: colors.white, letterSpacing: 1.5, opacity: 0.85 },
   nextTitle: { fontFamily: fonts.oswaldBold, fontSize: 24, color: colors.white, marginTop: 6 },
   nextMeta: { fontFamily: fonts.barlowRegular, fontSize: 14, color: colors.white, opacity: 0.9, marginTop: 2 },
