@@ -1,5 +1,5 @@
-import React, { Fragment } from 'react';
-import { Text, View } from 'react-native';
+import React, { Fragment, useState } from 'react';
+import { Pressable, Text, View, type GestureResponderEvent, type LayoutChangeEvent } from 'react-native';
 import Svg, { Rect } from 'react-native-svg';
 import { colors, fonts } from '../../theme/tokens';
 
@@ -28,11 +28,21 @@ export function GroupedBarChart({
   legendB?: string;
   onBarPress?: (datum: GroupedBarDatum, index: number) => void;
 }) {
+  const [chartWidth, setChartWidth] = useState(0);
+
   if (!data.length) return null;
   const max = Math.max(...data.map((d) => Math.max(d.a, d.b)), 1);
   const groupWidth = 40;
   const barGap = 3;
   const barWidth = (groupWidth - 8 - barGap) / 2;
+
+  // El onPress nativo de los <Rect> del SVG usa el responder de RN, que no dispara en
+  // web/PWA. En su lugar se calcula qué barra corresponde al X del toque sobre este overlay.
+  const handlePress = (evt: GestureResponderEvent) => {
+    if (!onBarPress || !chartWidth) return;
+    const index = Math.min(data.length - 1, Math.max(0, Math.floor((evt.nativeEvent.locationX / chartWidth) * data.length)));
+    onBarPress(data[index], index);
+  };
 
   return (
     <View style={{ width: '100%' }}>
@@ -46,7 +56,11 @@ export function GroupedBarChart({
           <Text style={{ fontFamily: fonts.barlowRegular, fontSize: 11, color: colors.textSecondary }}>{legendB}</Text>
         </View>
       </View>
-      <View style={{ height, width: '100%' }}>
+      <Pressable
+        style={{ height, width: '100%' }}
+        onLayout={(e: LayoutChangeEvent) => setChartWidth(e.nativeEvent.layout.width)}
+        onPress={onBarPress ? handlePress : undefined}
+      >
         <Svg width="100%" height="100%" viewBox={`0 0 ${data.length * groupWidth} 100`} preserveAspectRatio="none">
           {data.map((d, i) => {
             const gx = i * groupWidth + 4;
@@ -56,17 +70,6 @@ export function GroupedBarChart({
               <Fragment key={`${d.label}-${i}`}>
                 <Rect x={gx} y={82 - aHeight} width={barWidth} height={aHeight} rx={3} fill={colorA} />
                 <Rect x={gx + barWidth + barGap} y={82 - bHeight} width={barWidth} height={bHeight} rx={3} fill={colorB} />
-                {onBarPress ? (
-                  <Rect
-                    x={i * groupWidth}
-                    y={0}
-                    width={groupWidth}
-                    height={100}
-                    fill={colors.navy}
-                    fillOpacity={0.001}
-                    onPress={() => onBarPress(d, i)}
-                  />
-                ) : null}
               </Fragment>
             );
           })}
@@ -78,7 +81,7 @@ export function GroupedBarChart({
             </View>
           ))}
         </View>
-      </View>
+      </Pressable>
     </View>
   );
 }
