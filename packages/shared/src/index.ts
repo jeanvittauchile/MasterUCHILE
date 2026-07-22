@@ -8,6 +8,7 @@ export * from './domain/age';
 export * from './domain/results';
 export * from './domain/evaluation';
 export * from './domain/technicalEvaluation';
+export * from './domain/technicalEvaluationLevels';
 export * from './domain/tournamentImport';
 
 export * from './types/roles';

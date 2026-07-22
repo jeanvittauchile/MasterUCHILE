@@ -39,6 +39,7 @@ export function ProfileScreen() {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [grupo, setGrupo] = useState<'AM' | 'PM'>('AM');
+  const [sexo, setSexo] = useState<'Masculino' | 'Femenino' | ''>('');
   const [style1, setStyle1] = useState('');
   const [style2, setStyle2] = useState('');
   const [ev1, setEv1] = useState('');
@@ -55,6 +56,7 @@ export function ProfileScreen() {
     setEmail(str(p.email));
     setPhone(str(p.telefono));
     setGrupo(str(p.grupo) === 'PM' ? 'PM' : 'AM');
+    setSexo(str(p.sexo) === 'Femenino' ? 'Femenino' : str(p.sexo) === 'Masculino' ? 'Masculino' : '');
     setStyle1(str(p.estilo_1));
     setStyle2(str(p.estilo_2));
     setEv1(str(p.prueba_fav_1));
@@ -90,6 +92,7 @@ export function ProfileScreen() {
       email,
       telefono: phone,
       grupo,
+      ...(sexo ? { sexo } : {}),
       estilo_1: style1,
       estilo_2: style2,
       prueba_fav_1: ev1,
@@ -155,6 +158,16 @@ export function ProfileScreen() {
             {(['AM', 'PM'] as const).map((g) => (
               <Pressable key={g} style={[styles.groupBtn, grupo === g && styles.groupBtnActive]} onPress={() => setGrupo(g)}>
                 <Text style={[styles.groupBtnLabel, grupo === g && styles.groupBtnLabelActive]}>{g}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+        <View>
+          <Text style={styles.label}>Sexo</Text>
+          <View style={styles.groupRow}>
+            {(['Masculino', 'Femenino'] as const).map((s) => (
+              <Pressable key={s} style={[styles.groupBtn, sexo === s && styles.groupBtnActive]} onPress={() => setSexo(s)}>
+                <Text style={[styles.groupBtnLabel, sexo === s && styles.groupBtnLabelActive]}>{s}</Text>
               </Pressable>
             ))}
           </View>

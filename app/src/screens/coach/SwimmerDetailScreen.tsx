@@ -66,6 +66,7 @@ export function SwimmerDetailScreen() {
     { k: 'RUT', v: asText(sel.rut) },
     { k: 'Fecha de nacimiento', v: formatDate(perfil.fecha_nacimiento) },
     { k: 'Grupo', v: asText(perfil.grupo) },
+    { k: 'Sexo', v: asText((perfil as Record<string, unknown>).sexo) },
     { k: 'Email', v: asText((perfil as Record<string, unknown>).email) },
     { k: 'Teléfono', v: asText((perfil as Record<string, unknown>).telefono) },
     { k: 'Estilo 1', v: asText((perfil as Record<string, unknown>).estilo_1) },

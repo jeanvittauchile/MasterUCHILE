@@ -1,18 +1,36 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ActivityIndicator, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { EVALUATION_LEVEL_LABELS, type EvaluationLevel } from '@masteruchile/shared';
 import { ScreenLayout } from '../../components/ui/ScreenLayout';
 import { Card } from '../../components/ui/Card';
 import { Avatar } from '../../components/ui/Avatar';
+import { Pill } from '../../components/ui/Pill';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { PrimaryButton } from '../../components/ui/PrimaryButton';
 import { BarChart } from '../../components/charts/BarChart';
-import { useGeneralTournamentReport, useWeeklyAttendance, useWeeklyVolume, generalTournamentPdfUrl } from '../../api/hooks/useReports';
+import { GroupedBarChart } from '../../components/charts/GroupedBarChart';
+import { LineChart } from '../../components/charts/LineChart';
+import { LevelReferenceTable } from '../../components/reports/LevelReferenceTable';
+import {
+  useGeneralTournamentReport,
+  useTechnicalEvaluationsReport,
+  useWeeklyAttendance,
+  useWeeklyVolume,
+  generalTournamentPdfUrl,
+} from '../../api/hooks/useReports';
 import { useTournaments } from '../../api/hooks/useTournaments';
 import { useAuthStore } from '../../store/authStore';
 import { colors, fonts } from '../../theme/tokens';
 import type { RootStackParamList } from '../../navigation/types';
+
+const LEVEL_TONE: Record<EvaluationLevel, string> = {
+  AR: colors.green,
+  A: colors.blueAccent,
+  I: colors.textSecondary,
+  P: colors.red,
+};
 
 export function ReportsScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -21,11 +39,39 @@ export function ReportsScreen() {
   const attendance = useWeeklyAttendance();
   const general = useGeneralTournamentReport();
   const tournaments = useTournaments();
+  const technical = useTechnicalEvaluationsReport();
+  const [showLevelReference, setShowLevelReference] = useState(false);
 
   const lastVolume = volume.data?.weeks.at(-1)?.meters;
   const lastAttendance = attendance.data?.weeks.at(-1)?.pct;
 
-  const isLoading = volume.isLoading || attendance.isLoading || general.isLoading || tournaments.isLoading;
+  const salidaGenderData = (() => {
+    const m = technical.data?.byGender.Masculino.salida;
+    const f = technical.data?.byGender.Femenino.salida;
+    if (!m || !f || (!m.count && !f.count)) return [];
+    return [
+      { label: 'Tiempo (s)', a: m.avgTiempo ?? 0, b: f.avgTiempo ?? 0 },
+      { label: 'Subacuático', a: m.avgSubacuatico ?? 0, b: f.avgSubacuatico ?? 0 },
+      { label: 'Brazadas', a: m.avgBrazadas ?? 0, b: f.avgBrazadas ?? 0 },
+    ];
+  })();
+
+  const virajeGenderData = (() => {
+    const m = technical.data?.byGender.Masculino.viraje;
+    const f = technical.data?.byGender.Femenino.viraje;
+    if (!m || !f || (!m.count && !f.count)) return [];
+    return [
+      { label: 'Tiempo (s)', a: m.avgTiempo ?? 0, b: f.avgTiempo ?? 0 },
+      { label: 'Patadas', a: m.avgPatadas ?? 0, b: f.avgPatadas ?? 0 },
+      { label: 'Brazadas', a: m.avgBrazadas ?? 0, b: f.avgBrazadas ?? 0 },
+    ];
+  })();
+
+  const salidaProgress = (technical.data?.progress.salida ?? []).map((p) => ({ label: p.period.slice(5), value: p.avgTiempo }));
+  const virajeProgress = (technical.data?.progress.viraje ?? []).map((p) => ({ label: p.period.slice(5), value: p.avgTiempo }));
+  const swimmerLevels = technical.data?.swimmerLevels ?? [];
+
+  const isLoading = volume.isLoading || attendance.isLoading || general.isLoading || tournaments.isLoading || technical.isLoading;
 
   return (
     <ScreenLayout title="Reportes">
@@ -50,6 +96,90 @@ export function ReportsScreen() {
               <BarChart data={attendance.data.weeks.map((w) => ({ label: w.week.slice(5), value: w.pct }))} color={colors.red} />
             ) : (
               <EmptyState message="Aún no hay datos de asistencia registrados." />
+            )}
+          </Card>
+
+          <Text style={styles.sectionTitle}>EVALUACIONES TÉCNICAS · SALIDAS Y VIRAJES</Text>
+          <View style={styles.kpiRow}>
+            <View style={[styles.kpiBox, { backgroundColor: colors.navy }]}>
+              <Text style={styles.kpiValue}>{technical.data?.overall.salida.count ?? 0}</Text>
+              <Text style={styles.kpiLabel}>Intentos de salida</Text>
+            </View>
+            <View style={[styles.kpiBox, { backgroundColor: colors.red }]}>
+              <Text style={styles.kpiValue}>{technical.data?.overall.viraje.count ?? 0}</Text>
+              <Text style={styles.kpiLabel}>Intentos de viraje</Text>
+            </View>
+          </View>
+
+          <Card>
+            <Text style={[styles.cardTitle, { marginBottom: 10 }]}>SALIDA — PROMEDIO POR SEXO</Text>
+            {salidaGenderData.length ? (
+              <GroupedBarChart data={salidaGenderData} legendA="Hombres" legendB="Mujeres" />
+            ) : (
+              <EmptyState message="Aún no hay evaluaciones de salida con sexo registrado." />
+            )}
+          </Card>
+
+          <Card>
+            <Text style={[styles.cardTitle, { marginBottom: 10 }]}>VIRAJE — PROMEDIO POR SEXO</Text>
+            {virajeGenderData.length ? (
+              <GroupedBarChart data={virajeGenderData} legendA="Hombres" legendB="Mujeres" />
+            ) : (
+              <EmptyState message="Aún no hay evaluaciones de viraje con sexo registrado." />
+            )}
+          </Card>
+
+          <Card>
+            <Text style={styles.cardTitle}>PROGRESO — TIEMPO PROMEDIO DE SALIDA (seg)</Text>
+            <Text style={styles.chartHint}>▼ El tiempo baja = mejora</Text>
+            {salidaProgress.length >= 2 ? (
+              <LineChart data={salidaProgress} />
+            ) : (
+              <EmptyState message="Se necesitan al menos 2 meses con evaluaciones de salida para graficar el progreso." />
+            )}
+          </Card>
+
+          <Card>
+            <Text style={styles.cardTitle}>PROGRESO — TIEMPO PROMEDIO DE VIRAJE (seg)</Text>
+            <Text style={styles.chartHint}>▼ El tiempo baja = mejora</Text>
+            {virajeProgress.length >= 2 ? (
+              <LineChart data={virajeProgress} />
+            ) : (
+              <EmptyState message="Se necesitan al menos 2 meses con evaluaciones de viraje para graficar el progreso." />
+            )}
+          </Card>
+
+          <Card>
+            <Pressable onPress={() => setShowLevelReference((v) => !v)}>
+              <View style={styles.sectionHeaderRow}>
+                <Text style={styles.cardTitle}>TABLA DE REFERENCIA DE NIVELES</Text>
+                <Text style={styles.cardLink}>{showLevelReference ? 'OCULTAR ▲' : 'VER ▼'}</Text>
+              </View>
+            </Pressable>
+            {showLevelReference ? <LevelReferenceTable /> : null}
+          </Card>
+
+          <Card>
+            <Text style={[styles.cardTitle, { marginBottom: 10 }]}>NIVEL POR NADADOR</Text>
+            {swimmerLevels.length === 0 ? (
+              <EmptyState message="Aún no hay evaluaciones técnicas registradas." />
+            ) : (
+              swimmerLevels.map((s) => (
+                <View key={s.swimmerId} style={styles.swimmerRow}>
+                  <Avatar name={s.nombre} size={34} />
+                  <Text style={styles.swimmerName}>{s.nombre}</Text>
+                  <View style={{ gap: 4, alignItems: 'flex-end' }}>
+                    <Pill
+                      label={s.salida ? `Salida · ${EVALUATION_LEVEL_LABELS[s.salida.nivel]}` : 'Salida sin evaluar'}
+                      tone={s.salida ? LEVEL_TONE[s.salida.nivel] : colors.textTertiary}
+                    />
+                    <Pill
+                      label={s.viraje ? `Viraje · ${EVALUATION_LEVEL_LABELS[s.viraje.nivel]}` : 'Viraje sin evaluar'}
+                      tone={s.viraje ? LEVEL_TONE[s.viraje.nivel] : colors.textTertiary}
+                    />
+                  </View>
+                </View>
+              ))
             )}
           </Card>
 
@@ -124,6 +254,9 @@ const styles = StyleSheet.create({
   kpiLabel: { fontFamily: fonts.barlowRegular, fontSize: 12, color: colors.white, opacity: 0.85, marginTop: 4 },
   cardTitle: { fontFamily: fonts.oswaldSemiBold, fontSize: 16, color: colors.navy, letterSpacing: 0.5 },
   sectionTitle: { fontFamily: fonts.oswaldSemiBold, fontSize: 16, color: colors.navy, letterSpacing: 0.5 },
+  sectionHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  cardLink: { fontFamily: fonts.oswaldSemiBold, fontSize: 12, color: colors.blueAccent },
+  chartHint: { fontFamily: fonts.barlowRegular, fontSize: 12, color: colors.textTertiary, marginBottom: 10, marginTop: -6 },
   swimmerRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 9, borderBottomWidth: 1, borderBottomColor: colors.separator },
   swimmerName: { flex: 1, fontFamily: fonts.barlowSemiBold, fontSize: 14, color: colors.navy },
   swimmerCount: { fontFamily: fonts.oswaldBold, fontSize: 16, color: colors.navy },

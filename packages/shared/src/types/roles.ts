@@ -1,5 +1,6 @@
 export type UserRole = 'coach' | 'swimmer';
 export type SwimmerGroup = 'AM' | 'PM';
+export type Sexo = 'Masculino' | 'Femenino';
 export type TrainingGroup = 'AM' | 'PM' | 'Ambos';
 export type AttendanceStatus = 'confirmado' | 'declinado' | 'sin_responder' | 'asistio' | 'falto';
 export type TournamentEntryStatus = 'inscrito' | 'participo';

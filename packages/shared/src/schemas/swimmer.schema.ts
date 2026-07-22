@@ -28,6 +28,7 @@ export const swimmerProfileSchema = z.object({
   prueba_fav_1: z.string().trim().min(1).optional(),
   prueba_fav_2: z.string().trim().min(1).optional(),
   grupo: z.enum(['AM', 'PM']).optional(),
+  sexo: z.enum(['Masculino', 'Femenino']).optional(),
   prescripcion_medica: z.string().trim().optional(),
   contacto_emergencia: z.string().trim().optional(),
 });

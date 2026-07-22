@@ -1,5 +1,6 @@
 import type {
   AttendanceStatus,
+  Sexo,
   SplitDistance,
   SwimmerGroup,
   TournamentEntryStatus,
@@ -29,6 +30,7 @@ export interface SwimmerProfileRow {
   prueba_fav_1: string | null;
   prueba_fav_2: string | null;
   grupo: SwimmerGroup;
+  sexo: Sexo | null;
   prescripcion_medica: string | null;
   contacto_emergencia: string | null;
   perfil_completo: boolean;

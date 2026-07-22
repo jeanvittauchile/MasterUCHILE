@@ -20,7 +20,7 @@ export interface SwimmerFicha {
   nombre: string;
   rut: string;
   categoria: { label: string } | null;
-  perfil: Record<string, unknown> & { fecha_nacimiento?: string | null; grupo?: string; prescripcion_medica?: string | null };
+  perfil: Record<string, unknown> & { fecha_nacimiento?: string | null; grupo?: string; sexo?: string | null; prescripcion_medica?: string | null };
   attendancePct: number | null;
   pb: { prueba: string; tiempo: string } | null;
   results: { id: string; prueba: string; tiempo: string; tiempo_centesimas: number; fecha: string; es_pb: boolean }[];

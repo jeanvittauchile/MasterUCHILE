@@ -5,6 +5,7 @@ import { authenticate } from '../middleware/authenticate';
 import { requireRole } from '../middleware/requireRole';
 import {
   getGeneralTournamentReport,
+  getTechnicalEvaluationsReport,
   getTournamentReport,
   getWeeklyAttendance,
   getWeeklyVolume,
@@ -25,6 +26,13 @@ reportsRoutes.get(
   '/attendance',
   asyncHandler(async (req, res) => {
     res.json({ weeks: await getWeeklyAttendance(supabaseForUser(req.token!)) });
+  }),
+);
+
+reportsRoutes.get(
+  '/technical-evaluations',
+  asyncHandler(async (_req, res) => {
+    res.json(await getTechnicalEvaluationsReport());
   }),
 );
 
