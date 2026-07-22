@@ -7,6 +7,7 @@ export interface GroupedBarDatum {
   label: string;
   a: number;
   b: number;
+  id?: string;
 }
 
 /** Par de barras por categoría (ej. confirmados vs no confirmados por sesión), con leyenda. */
@@ -17,6 +18,7 @@ export function GroupedBarChart({
   colorB = colors.red,
   legendA = 'Confirmados',
   legendB = 'No confirmados',
+  onBarPress,
 }: {
   data: GroupedBarDatum[];
   height?: number;
@@ -24,6 +26,7 @@ export function GroupedBarChart({
   colorB?: string;
   legendA?: string;
   legendB?: string;
+  onBarPress?: (datum: GroupedBarDatum, index: number) => void;
 }) {
   if (!data.length) return null;
   const max = Math.max(...data.map((d) => Math.max(d.a, d.b)), 1);
@@ -53,6 +56,17 @@ export function GroupedBarChart({
               <Fragment key={`${d.label}-${i}`}>
                 <Rect x={gx} y={82 - aHeight} width={barWidth} height={aHeight} rx={3} fill={colorA} />
                 <Rect x={gx + barWidth + barGap} y={82 - bHeight} width={barWidth} height={bHeight} rx={3} fill={colorB} />
+                {onBarPress ? (
+                  <Rect
+                    x={i * groupWidth}
+                    y={0}
+                    width={groupWidth}
+                    height={100}
+                    fill={colors.navy}
+                    fillOpacity={0.001}
+                    onPress={() => onBarPress(d, i)}
+                  />
+                ) : null}
               </Fragment>
             );
           })}

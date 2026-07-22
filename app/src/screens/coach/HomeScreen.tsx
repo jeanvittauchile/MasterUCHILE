@@ -93,7 +93,7 @@ export function HomeScreen() {
           if (att.estado === 'confirmado' || att.estado === 'asistio') a += 1;
           else b += 1;
         }
-        return { label: t.fecha.slice(5), a, b };
+        return { label: t.fecha.slice(5), a, b, id: t.id };
       }),
     [trainings.data],
   );
@@ -168,23 +168,28 @@ export function HomeScreen() {
         </Card>
       </Pressable>
 
-      <Pressable onPress={() => navigation.navigate('Reportes')}>
-        <Card>
-          <View style={styles.cardHeaderRow}>
-            <Text style={styles.cardTitle}>CONFIRMACIONES POR SESIÓN</Text>
+      <Card>
+        <View style={styles.cardHeaderRow}>
+          <Text style={styles.cardTitle}>CONFIRMACIONES POR SESIÓN</Text>
+          <Pressable onPress={() => navigation.navigate('Reportes')}>
             <Text style={styles.cardLink}>Ver reportes ›</Text>
-          </View>
-          <View style={styles.kpiRow}>
-            <KpiTile value={String(attendanceTotals.confirmed)} label="Confirmados/asistidos" color={colors.green} />
-            <KpiTile value={String(attendanceTotals.notConfirmed)} label="No confirmados" color={colors.red} />
-          </View>
-          {confirmationsBySession.length ? (
-            <GroupedBarChart data={confirmationsBySession} legendA="Confirmados/asistidos" legendB="No confirmados" />
-          ) : (
-            <EmptyState message="Aún no hay sesiones con nadadores asignados." />
-          )}
-        </Card>
-      </Pressable>
+          </Pressable>
+        </View>
+        <View style={styles.kpiRow}>
+          <KpiTile value={String(attendanceTotals.confirmed)} label="Confirmados/asistidos" color={colors.green} />
+          <KpiTile value={String(attendanceTotals.notConfirmed)} label="No confirmados" color={colors.red} />
+        </View>
+        {confirmationsBySession.length ? (
+          <GroupedBarChart
+            data={confirmationsBySession}
+            legendA="Confirmados/asistidos"
+            legendB="No confirmados"
+            onBarPress={(d) => d.id && navigation.navigate('SessionDetail', { trainingId: d.id })}
+          />
+        ) : (
+          <EmptyState message="Aún no hay sesiones con nadadores asignados." />
+        )}
+      </Card>
 
       <View style={styles.cardHeaderRow}>
         <Text style={styles.cardTitle}>CONFIRMACIONES DE HOY</Text>
