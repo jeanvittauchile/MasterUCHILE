@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, TextInput, View } from 'react-native';
-import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useRoute, type RouteProp } from '@react-navigation/native';
 import { EVALUATION_CRITERIA, type EvaluationCriterion, type EvaluationScores } from '@masteruchile/shared';
 import { ScreenLayout } from '../../components/ui/ScreenLayout';
 import { Card } from '../../components/ui/Card';
@@ -30,7 +29,6 @@ function defaultScores(): EvaluationScores {
 
 export function EvaluateDetailScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'EvaluateDetail'>>();
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { swimmerId } = route.params;
 
   const swimmer = useSwimmerFicha(swimmerId);
@@ -66,29 +64,6 @@ export function EvaluateDetailScreen() {
           <Text style={styles.headerMeta}>{history.length} evaluaciones registradas</Text>
         </View>
       </View>
-
-      {!showForm ? (
-        <Card style={{ gap: 12 }}>
-          <Text style={styles.cardTitle}>EVALUACIÓN TÉCNICA</Text>
-          <Text style={styles.headerMeta}>Cronómetro y conteos por intento de viraje o salida.</Text>
-          <View style={{ flexDirection: 'row', gap: 10 }}>
-            <View style={{ flex: 1 }}>
-              <PrimaryButton
-                label="VIRAJE"
-                variant="secondary"
-                onPress={() => navigation.navigate('TechnicalEvaluateDetail', { swimmerId, tipo: 'viraje' })}
-              />
-            </View>
-            <View style={{ flex: 1 }}>
-              <PrimaryButton
-                label="SALIDA"
-                variant="secondary"
-                onPress={() => navigation.navigate('TechnicalEvaluateDetail', { swimmerId, tipo: 'salida' })}
-              />
-            </View>
-          </View>
-        </Card>
-      ) : null}
 
       {showForm ? (
         <Card style={{ gap: 16 }}>

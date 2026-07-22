@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { TechnicalEvaluationType } from '@masteruchile/shared';
+import type { TechnicalEvaluationStroke, TechnicalEvaluationType, TurnCombination } from '@masteruchile/shared';
 import { apiFetch } from '../client';
 
 export interface TechnicalEvaluationAttemptItem {
@@ -15,6 +15,8 @@ export interface TechnicalEvaluationItem {
   id: string;
   swimmer_id: string;
   tipo: TechnicalEvaluationType;
+  estilo: TechnicalEvaluationStroke | null;
+  combinacion: TurnCombination | null;
   fecha: string;
   nota: string | null;
   attempts: TechnicalEvaluationAttemptItem[];
@@ -44,10 +46,35 @@ export function useAddTechnicalEvaluation(swimmerId: string) {
   return useMutation({
     mutationFn: (input: {
       tipo: TechnicalEvaluationType;
+      estilo?: TechnicalEvaluationStroke;
+      combinacion?: TurnCombination;
       nota?: string;
       attempts: TechnicalEvaluationAttemptInput[];
     }) => apiFetch<TechnicalEvaluationItem>('/technical-evaluations', { method: 'POST', body: { swimmerId, ...input } }),
     onSuccess: (_data, variables) =>
       qc.invalidateQueries({ queryKey: ['technical-evaluations', swimmerId, variables.tipo] }),
+  });
+}
+
+export interface BulkTechnicalEvaluationEntryInput {
+  swimmerId: string;
+  nota?: string;
+  attempts: TechnicalEvaluationAttemptInput[];
+}
+
+export function useAddBulkTechnicalEvaluations() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: {
+      tipo: TechnicalEvaluationType;
+      estilo?: TechnicalEvaluationStroke;
+      combinacion?: TurnCombination;
+      entries: BulkTechnicalEvaluationEntryInput[];
+    }) => apiFetch<{ evaluations: TechnicalEvaluationItem[] }>('/technical-evaluations/bulk', { method: 'POST', body: input }),
+    onSuccess: (_data, variables) => {
+      for (const entry of variables.entries) {
+        qc.invalidateQueries({ queryKey: ['technical-evaluations', entry.swimmerId, variables.tipo] });
+      }
+    },
   });
 }

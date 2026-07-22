@@ -4,34 +4,25 @@ import { useRoute, type RouteProp } from '@react-navigation/native';
 import {
   TECHNICAL_EVALUATION_CONFIG,
   TECHNICAL_EVALUATION_METRIC_LABELS,
+  TECHNICAL_EVALUATION_STROKE_LABELS,
+  TURN_COMBINATION_LABELS,
   bestAttempt,
   formatCentiseconds,
   isValidTimeInput,
-  type TechnicalEvaluationMetric,
+  type TechnicalEvaluationStroke,
+  type TurnCombination,
 } from '@masteruchile/shared';
 import { ScreenLayout } from '../../components/ui/ScreenLayout';
 import { Card } from '../../components/ui/Card';
 import { Avatar } from '../../components/ui/Avatar';
 import { PrimaryButton } from '../../components/ui/PrimaryButton';
 import { EmptyState } from '../../components/ui/EmptyState';
-import { TimeInput } from '../../components/forms/TimeInput';
-import { Stepper } from '../../components/forms/Stepper';
+import { TechnicalAttemptsEditor, newAttempt, type AttemptDraft } from '../../components/forms/TechnicalAttemptsEditor';
+import { StrokeOrComboPicker } from '../../components/forms/StrokeOrComboPicker';
 import { useSwimmerFicha } from '../../api/hooks/useSwimmers';
 import { useAddTechnicalEvaluation, useTechnicalEvaluations } from '../../api/hooks/useTechnicalEvaluations';
 import { colors, fonts, radii } from '../../theme/tokens';
 import type { RootStackParamList } from '../../navigation/types';
-
-interface AttemptDraft {
-  numeroIntento: number;
-  tiempo: string;
-  brazadas: number;
-  patadas: number;
-  subacuatico: number;
-}
-
-function newAttempt(numeroIntento: number): AttemptDraft {
-  return { numeroIntento, tiempo: '', brazadas: 0, patadas: 0, subacuatico: 0 };
-}
 
 export function TechnicalEvaluateDetailScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'TechnicalEvaluateDetail'>>();
@@ -43,23 +34,14 @@ export function TechnicalEvaluateDetailScreen() {
   const addEvaluation = useAddTechnicalEvaluation(swimmerId);
 
   const [showForm, setShowForm] = useState(false);
+  const [estilo, setEstilo] = useState<TechnicalEvaluationStroke | undefined>(undefined);
+  const [combinacion, setCombinacion] = useState<TurnCombination | undefined>(undefined);
   const [attempts, setAttempts] = useState<AttemptDraft[]>([newAttempt(1)]);
   const [nota, setNota] = useState('');
 
-  const updateAttempt = (index: number, patch: Partial<AttemptDraft>) => {
-    setAttempts((prev) => prev.map((a, i) => (i === index ? { ...a, ...patch } : a)));
-  };
-
-  const addAttemptRow = () => setAttempts((prev) => [...prev, newAttempt(prev.length + 1)]);
-
-  const removeAttemptRow = (index: number) => {
-    setAttempts((prev) =>
-      prev.filter((_, i) => i !== index).map((a, i) => ({ ...a, numeroIntento: i + 1 })),
-    );
-  };
-
   const validAttempts = attempts.filter((a) => isValidTimeInput(a.tiempo));
-  const canSave = validAttempts.length > 0;
+  const hasStyleSelection = tipo === 'salida' ? !!estilo : !!combinacion;
+  const canSave = validAttempts.length > 0 && hasStyleSelection;
 
   const resetForm = () => {
     setAttempts([newAttempt(1)]);
@@ -70,6 +52,8 @@ export function TechnicalEvaluateDetailScreen() {
     addEvaluation.mutate(
       {
         tipo,
+        estilo: tipo === 'salida' ? estilo : undefined,
+        combinacion: tipo === 'viraje' ? combinacion : undefined,
         nota: nota.trim() || undefined,
         attempts: validAttempts.map((a) => ({
           numeroIntento: a.numeroIntento,
@@ -100,33 +84,15 @@ export function TechnicalEvaluateDetailScreen() {
           <Text style={styles.cardTitle}>NUEVA EVALUACIÓN · {config.label.toUpperCase()}</Text>
           <Text style={styles.helpText}>{config.tiempoLabel}</Text>
 
-          {attempts.map((attempt, index) => (
-            <View key={index} style={styles.attemptCard}>
-              <View style={styles.attemptHeader}>
-                <Text style={styles.attemptTitle}>Intento {attempt.numeroIntento}</Text>
-                {attempts.length > 1 ? (
-                  <Text style={styles.removeLink} onPress={() => removeAttemptRow(index)}>
-                    ✕ Quitar
-                  </Text>
-                ) : null}
-              </View>
-              <TimeInput value={attempt.tiempo} onChangeText={(v) => updateAttempt(index, { tiempo: v })} />
-              <View style={{ gap: 10, marginTop: 12 }}>
-                {config.metrics.map((metric: TechnicalEvaluationMetric) => (
-                  <Stepper
-                    key={metric}
-                    label={TECHNICAL_EVALUATION_METRIC_LABELS[metric]}
-                    value={attempt[metric]}
-                    onValueChange={(v) => updateAttempt(index, { [metric]: v } as Partial<AttemptDraft>)}
-                  />
-                ))}
-              </View>
-            </View>
-          ))}
+          <StrokeOrComboPicker
+            tipo={tipo}
+            estilo={estilo}
+            combinacion={combinacion}
+            onChangeEstilo={setEstilo}
+            onChangeCombinacion={setCombinacion}
+          />
 
-          <Text style={styles.addLink} onPress={addAttemptRow}>
-            + Agregar intento
-          </Text>
+          <TechnicalAttemptsEditor tipo={tipo} attempts={attempts} onChange={setAttempts} />
 
           <View>
             <Text style={styles.fieldLabel}>Observaciones</Text>
@@ -169,10 +135,18 @@ export function TechnicalEvaluateDetailScreen() {
           ) : (
             history.map((h) => {
               const best = bestAttempt(h.attempts);
+              const badge = h.estilo
+                ? TECHNICAL_EVALUATION_STROKE_LABELS[h.estilo]
+                : h.combinacion
+                  ? TURN_COMBINATION_LABELS[h.combinacion]
+                  : null;
               return (
                 <View key={h.id} style={styles.historyCard}>
                   <View style={styles.historyHeader}>
-                    <Text style={styles.historyDate}>{h.fecha}</Text>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.historyDate}>{h.fecha}</Text>
+                      {badge ? <Text style={styles.historyBadge}>{badge}</Text> : null}
+                    </View>
                     {best ? <Text style={styles.historyBest}>Mejor: {formatCentiseconds(best.tiempo_centesimas)}</Text> : null}
                   </View>
                   {h.attempts
@@ -215,11 +189,6 @@ const styles = StyleSheet.create({
   headerMeta: { fontFamily: fonts.barlowRegular, fontSize: 12.5, color: colors.textSecondary, marginTop: 4 },
   cardTitle: { fontFamily: fonts.oswaldSemiBold, fontSize: 16, color: colors.navy, letterSpacing: 0.5 },
   helpText: { fontFamily: fonts.barlowRegular, fontSize: 12.5, color: colors.textSecondary, marginTop: -12 },
-  attemptCard: { backgroundColor: colors.background, borderRadius: radii.cardSm, padding: 14 },
-  attemptHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  attemptTitle: { fontFamily: fonts.barlowBold, fontSize: 13.5, color: colors.navy },
-  removeLink: { fontFamily: fonts.barlowSemiBold, fontSize: 12, color: colors.red },
-  addLink: { fontFamily: fonts.barlowSemiBold, fontSize: 13, color: colors.blueAccent, textAlign: 'center' },
   fieldLabel: { fontFamily: fonts.barlowRegular, fontSize: 12, color: colors.textSecondary, marginBottom: 4 },
   textarea: {
     borderWidth: 1,
@@ -236,6 +205,7 @@ const styles = StyleSheet.create({
   historyCard: { backgroundColor: colors.surface, borderRadius: radii.cardSm, padding: 15, gap: 10 },
   historyHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   historyDate: { fontFamily: fonts.barlowSemiBold, fontSize: 13, color: colors.textSecondary },
+  historyBadge: { fontFamily: fonts.barlowSemiBold, fontSize: 12, color: colors.blueAccent, marginTop: 2 },
   historyBest: { fontFamily: fonts.oswaldBold, fontSize: 14, color: colors.navy },
   attemptRow: { borderTopWidth: 1, borderTopColor: colors.separator, paddingTop: 8, gap: 4 },
   attemptRowLabel: { fontFamily: fonts.barlowBold, fontSize: 12.5, color: colors.navy },

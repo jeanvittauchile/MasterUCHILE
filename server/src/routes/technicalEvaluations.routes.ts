@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import { createTechnicalEvaluationSchema } from '@masteruchile/shared';
+import { createBulkTechnicalEvaluationSchema, createTechnicalEvaluationSchema } from '@masteruchile/shared';
 import { asyncHandler } from '../lib/asyncHandler';
 import { badRequest, forbidden } from '../lib/httpErrors';
 import { supabaseForUser } from '../db/supabaseForUser';
 import { authenticate } from '../middleware/authenticate';
 import { requireRole } from '../middleware/requireRole';
-import { insertTechnicalEvaluation } from '../services/technicalEvaluations.service';
+import { insertBulkTechnicalEvaluations, insertTechnicalEvaluation } from '../services/technicalEvaluations.service';
 
 export const technicalEvaluationsRoutes = Router();
 technicalEvaluationsRoutes.use(authenticate);
@@ -42,5 +42,16 @@ technicalEvaluationsRoutes.post(
     const db = supabaseForUser(req.token!);
     const evaluation = await insertTechnicalEvaluation(db, swimmerId, req.user!.id, input);
     res.status(201).json(evaluation);
+  }),
+);
+
+technicalEvaluationsRoutes.post(
+  '/bulk',
+  requireRole('coach'),
+  asyncHandler(async (req, res) => {
+    const input = createBulkTechnicalEvaluationSchema.parse(req.body ?? {});
+    const db = supabaseForUser(req.token!);
+    const evaluations = await insertBulkTechnicalEvaluations(db, req.user!.id, input);
+    res.status(201).json({ evaluations });
   }),
 );

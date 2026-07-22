@@ -29,6 +29,37 @@ export const TECHNICAL_EVALUATION_METRIC_LABELS: Record<TechnicalEvaluationMetri
   subacuatico: 'Mov. subacuáticos',
 };
 
+export const TECHNICAL_EVALUATION_STROKES = ['crol', 'espalda', 'pecho', 'mariposa'] as const;
+export type TechnicalEvaluationStroke = (typeof TECHNICAL_EVALUATION_STROKES)[number];
+
+export const TECHNICAL_EVALUATION_STROKE_LABELS: Record<TechnicalEvaluationStroke, string> = {
+  crol: 'Crol',
+  espalda: 'Espalda',
+  pecho: 'Pecho',
+  mariposa: 'Mariposa',
+};
+
+export const TURN_COMBINATIONS = [
+  'crol_crol',
+  'espalda_espalda',
+  'mariposa_mariposa',
+  'pecho_pecho',
+  'mariposa_espalda',
+  'espalda_pecho',
+  'pecho_crol',
+] as const;
+export type TurnCombination = (typeof TURN_COMBINATIONS)[number];
+
+export const TURN_COMBINATION_LABELS: Record<TurnCombination, string> = {
+  crol_crol: 'Crol → Crol',
+  espalda_espalda: 'Espalda → Espalda',
+  mariposa_mariposa: 'Mariposa → Mariposa',
+  pecho_pecho: 'Pecho → Pecho',
+  mariposa_espalda: 'Mariposa → Espalda',
+  espalda_pecho: 'Espalda → Pecho',
+  pecho_crol: 'Pecho → Crol',
+};
+
 /** Mejor intento = tiempo más bajo (mismo criterio que Promesas-Chile: "tiempo más bajo = mejor salida/viraje"). */
 export function bestAttempt<T extends { tiempo_centesimas: number }>(attempts: T[]): T | null {
   if (attempts.length === 0) return null;

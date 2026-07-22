@@ -7,7 +7,7 @@ import type {
   UserRole,
 } from './roles';
 import type { EvaluationScores } from '../domain/evaluation';
-import type { TechnicalEvaluationType } from '../domain/technicalEvaluation';
+import type { TechnicalEvaluationStroke, TechnicalEvaluationType, TurnCombination } from '../domain/technicalEvaluation';
 
 export interface UserRow {
   id: string;
@@ -94,6 +94,8 @@ export interface TechnicalEvaluationRow {
   id: string;
   swimmer_id: string;
   tipo: TechnicalEvaluationType;
+  estilo: TechnicalEvaluationStroke | null;
+  combinacion: TurnCombination | null;
   fecha: string;
   nota: string | null;
   creado_por: string | null;

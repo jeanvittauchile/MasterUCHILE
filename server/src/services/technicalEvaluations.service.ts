@@ -1,5 +1,9 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { parseTimeToCentiseconds, type CreateTechnicalEvaluationInput } from '@masteruchile/shared';
+import {
+  parseTimeToCentiseconds,
+  type CreateBulkTechnicalEvaluationInput,
+  type CreateTechnicalEvaluationInput,
+} from '@masteruchile/shared';
 import { badRequest } from '../lib/httpErrors';
 
 /**
@@ -18,6 +22,8 @@ export async function insertTechnicalEvaluation(
     .insert({
       swimmer_id: swimmerId,
       tipo: input.tipo,
+      estilo: input.estilo ?? null,
+      combinacion: input.combinacion ?? null,
       fecha: input.fecha ?? new Date().toISOString().slice(0, 10),
       nota: input.nota ?? null,
       creado_por: creadoPor,
@@ -46,4 +52,28 @@ export async function insertTechnicalEvaluation(
   if (attemptsError) throw attemptsError;
 
   return { ...evaluation, attempts: attempts ?? [] };
+}
+
+/**
+ * Registro grupal: mismo estilo/combinación y fecha para todos, un header+intentos por nadador.
+ * Igual criterio best-effort que insertTechnicalEvaluation; se inserta nadador por nadador.
+ */
+export async function insertBulkTechnicalEvaluations(
+  client: SupabaseClient,
+  creadoPor: string,
+  input: CreateBulkTechnicalEvaluationInput,
+) {
+  const evaluations = [];
+  for (const entry of input.entries) {
+    const evaluation = await insertTechnicalEvaluation(client, entry.swimmerId, creadoPor, {
+      tipo: input.tipo,
+      estilo: input.estilo,
+      combinacion: input.combinacion,
+      fecha: input.fecha,
+      nota: entry.nota,
+      attempts: entry.attempts,
+    });
+    evaluations.push(evaluation);
+  }
+  return evaluations;
 }

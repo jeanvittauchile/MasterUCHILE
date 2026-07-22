@@ -8,6 +8,7 @@ export type RootStackParamList = {
   TournamentDetail: { tournamentId: string };
   EvaluateDetail: { swimmerId: string };
   TechnicalEvaluateDetail: { swimmerId: string; tipo: 'viraje' | 'salida' };
+  TechnicalEvaluateGroup: { tipo: 'viraje' | 'salida' };
   MarkDetail: { prueba: string };
   Coaches: undefined;
 };
