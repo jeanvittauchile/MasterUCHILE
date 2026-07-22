@@ -45,7 +45,7 @@ export function HomeScreen() {
       const targets: ('AM' | 'PM')[] = session.grupo === 'Ambos' ? ['AM', 'PM'] : [session.grupo as 'AM' | 'PM'];
       for (const g of targets) {
         for (const att of session.attendance ?? []) {
-          const confirmed = att.estado === 'confirmado';
+          const confirmed = att.estado === 'confirmado' || att.estado === 'asistio';
           byGroup[g].members.push({
             name: (att as any).users?.nombre ?? '—',
             confLabel: confirmed ? 'Confirmado' : att.estado === 'declinado' ? 'No puede' : 'Sin responder',
