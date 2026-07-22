@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, type CompositeNavigationProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { ScreenLayout } from '../../components/ui/ScreenLayout';
 import { Card } from '../../components/ui/Card';
 import { KpiTile } from '../../components/ui/KpiTile';
@@ -12,23 +13,12 @@ import { useSwimmerFicha, useSetFeaturedMarks, type SwimmerFicha } from '../../a
 import { useTrainings } from '../../api/hooks/useTrainings';
 import { useTournaments } from '../../api/hooks/useTournaments';
 import { useAuthStore } from '../../store/authStore';
+import { todayIso, shortDate } from '../../lib/date';
 import { colors, fonts, radii, shadows } from '../../theme/tokens';
-import type { RootStackParamList } from '../../navigation/types';
+import type { RootStackParamList, SwimmerTabParamList } from '../../navigation/types';
 
 type FichaResult = SwimmerFicha['results'][number];
-
-const todayIso = () => new Date().toISOString().slice(0, 10);
-const MONTHS = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
-
-function parseIsoDate(iso: string) {
-  const [y, m, d] = iso.split('-').map(Number);
-  return new Date(y, (m ?? 1) - 1, d ?? 1);
-}
-
-function shortDate(iso: string) {
-  const d = parseIsoDate(iso);
-  return `${String(d.getDate()).padStart(2, '0')} ${MONTHS[d.getMonth()]}`;
-}
+type Nav = CompositeNavigationProp<BottomTabNavigationProp<SwimmerTabParamList>, NativeStackNavigationProp<RootStackParamList>>;
 
 const FEATURED_GRADIENTS: [string, string][] = [
   [colors.red, colors.redDark],
@@ -38,7 +28,7 @@ const FEATURED_GRADIENTS: [string, string][] = [
 
 /** Inicio del nadador: próxima sesión, KPIs, próximo torneo y mejores marcas destacadas. */
 export function HomeScreen() {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation = useNavigation<Nav>();
   const user = useAuthStore((s) => s.user);
   const ficha = useSwimmerFicha(user?.id);
   const trainings = useTrainings();
@@ -113,22 +103,24 @@ export function HomeScreen() {
       </View>
 
       {nextSession ? (
-        <LinearGradient
-          colors={[colors.navy, colors.navySecondary]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.nextCard}
-        >
-          <Text style={styles.nextLabel}>TU PRÓXIMO ENTRENAMIENTO</Text>
-          <Text style={styles.nextTitle}>{nextSession.foco ?? 'Entrenamiento'}</Text>
-          <Text style={styles.nextMeta}>
-            {nextSession.fecha === today ? 'Hoy' : shortDate(nextSession.fecha)} {nextSession.hora ?? ''} ·{' '}
-            {nextSession.distancia_total ?? 0} m
-          </Text>
-          <Pressable style={styles.nextBtn} onPress={() => navigation.navigate('SessionDetail', { trainingId: nextSession.id })}>
-            <Text style={styles.nextBtnLabel}>Ver y confirmar asistencia →</Text>
-          </Pressable>
-        </LinearGradient>
+        <Pressable onPress={() => navigation.navigate('SessionDetail', { trainingId: nextSession.id })}>
+          <LinearGradient
+            colors={[colors.navy, colors.navySecondary]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.nextCard}
+          >
+            <Text style={styles.nextLabel}>TU PRÓXIMO ENTRENAMIENTO</Text>
+            <Text style={styles.nextTitle}>{nextSession.foco ?? 'Entrenamiento'}</Text>
+            <Text style={styles.nextMeta}>
+              {shortDate(nextSession.fecha)}
+              {nextSession.fecha === today ? ' · Hoy' : ''} {nextSession.hora ?? ''} · {nextSession.distancia_total ?? 0} m
+            </Text>
+            <View style={styles.nextBtn}>
+              <Text style={styles.nextBtnLabel}>Ver y confirmar asistencia →</Text>
+            </View>
+          </LinearGradient>
+        </Pressable>
       ) : (
         <EmptyState message="No tienes próximos entrenamientos asignados." />
       )}
@@ -152,19 +144,24 @@ export function HomeScreen() {
         )}
       </Card>
 
-      <Card>
-        <Text style={styles.cardTitle}>MIS CONFIRMACIONES</Text>
-        {myConfirmations.confirmed + myConfirmations.notConfirmed > 0 ? (
-          <BarChart
-            data={[
-              { label: 'Confirmadas', value: myConfirmations.confirmed, color: colors.green },
-              { label: 'No confirmadas', value: myConfirmations.notConfirmed, color: colors.red },
-            ]}
-          />
-        ) : (
-          <EmptyState message="Aún no tienes entrenamientos asignados." />
-        )}
-      </Card>
+      <Pressable onPress={() => navigation.navigate('Sesiones')}>
+        <Card>
+          <View style={styles.sectionHeaderRow}>
+            <Text style={styles.cardTitle}>MIS CONFIRMACIONES</Text>
+            <Text style={styles.cardLink}>Ver sesiones ›</Text>
+          </View>
+          {myConfirmations.confirmed + myConfirmations.notConfirmed > 0 ? (
+            <BarChart
+              data={[
+                { label: 'Confirmadas', value: myConfirmations.confirmed, color: colors.green },
+                { label: 'No confirmadas', value: myConfirmations.notConfirmed, color: colors.red },
+              ]}
+            />
+          ) : (
+            <EmptyState message="Aún no tienes entrenamientos asignados." />
+          )}
+        </Card>
+      </Pressable>
 
       <View style={styles.sectionHeaderRow}>
         <Text style={styles.cardTitle}>MIS MEJORES MARCAS</Text>
@@ -234,6 +231,7 @@ const styles = StyleSheet.create({
   nextBtnLabel: { fontFamily: fonts.barlowSemiBold, fontSize: 13, color: colors.white },
   kpiRow: { flexDirection: 'row', gap: 10 },
   cardTitle: { fontFamily: fonts.oswaldSemiBold, fontSize: 15, color: colors.navy, letterSpacing: 0.5 },
+  cardLink: { fontFamily: fonts.oswaldSemiBold, fontSize: 12, color: colors.blueAccent },
   tournamentName: { fontFamily: fonts.barlowBold, fontSize: 15, color: colors.navy, marginTop: 6 },
   tournamentMeta: { fontFamily: fonts.barlowRegular, fontSize: 12.5, color: colors.textSecondary, marginTop: 2 },
   sectionHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },

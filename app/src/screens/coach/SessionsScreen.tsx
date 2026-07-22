@@ -12,6 +12,7 @@ import { EmptyState } from '../../components/ui/EmptyState';
 import { FormField } from '../../components/forms/FormField';
 import { MonthCalendar, type DaySessionMarks } from '../../components/forms/MonthCalendar';
 import { useCreateTraining, useTrainings } from '../../api/hooks/useTrainings';
+import { todayIso } from '../../lib/date';
 import { colors, fonts, groupTone, radii } from '../../theme/tokens';
 import type { RootStackParamList } from '../../navigation/types';
 
@@ -23,7 +24,6 @@ const MONTH_NAMES = [
 const GROUP_OPTIONS: TrainingGroup[] = ['AM', 'PM', 'Ambos'];
 
 const pad2 = (n: number) => String(n).padStart(2, '0');
-const todayIso = () => new Date().toISOString().slice(0, 10);
 
 export function SessionsScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();

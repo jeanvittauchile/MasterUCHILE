@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useNavigation, type CompositeNavigationProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { ScreenLayout } from '../../components/ui/ScreenLayout';
 import { Card } from '../../components/ui/Card';
 import { KpiTile } from '../../components/ui/KpiTile';
@@ -15,13 +16,14 @@ import { useTrainings } from '../../api/hooks/useTrainings';
 import { useTournaments } from '../../api/hooks/useTournaments';
 import { useWeeklyVolume } from '../../api/hooks/useReports';
 import { useAuthStore } from '../../store/authStore';
+import { todayIso, shortDate } from '../../lib/date';
 import { colors, fonts, groupTone, radii } from '../../theme/tokens';
-import type { RootStackParamList } from '../../navigation/types';
+import type { RootStackParamList, CoachTabParamList } from '../../navigation/types';
 
-const todayIso = () => new Date().toISOString().slice(0, 10);
+type Nav = CompositeNavigationProp<BottomTabNavigationProp<CoachTabParamList>, NativeStackNavigationProp<RootStackParamList>>;
 
 export function HomeScreen() {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation = useNavigation<Nav>();
   const user = useAuthStore((s) => s.user);
   const swimmers = useSwimmers();
   const trainings = useTrainings();
@@ -99,15 +101,17 @@ export function HomeScreen() {
       </View>
 
       {nextSession ? (
-        <View style={styles.nextCard}>
+        <Pressable style={styles.nextCard} onPress={() => navigation.navigate('SessionDetail', { trainingId: nextSession.id })}>
           <Text style={styles.nextLabel}>
-            PRÓXIMA SESIÓN · {nextSession.fecha === today ? 'HOY' : nextSession.fecha} {nextSession.hora ?? ''}
+            PRÓXIMA SESIÓN · {shortDate(nextSession.fecha)}
+            {nextSession.fecha === today ? ' · HOY' : ''} {nextSession.hora ?? ''}
           </Text>
           <Text style={styles.nextTitle}>{nextSession.foco}</Text>
           <Text style={styles.nextMeta}>
             {nextSession.distancia_total ?? 0} m · Grupo {nextSession.grupo}
           </Text>
-        </View>
+          <Text style={styles.nextLink}>Ver entrenamiento completo →</Text>
+        </Pressable>
       ) : (
         <EmptyState message="No hay próximas sesiones. Programa una desde la pestaña Sesiones." />
       )}
@@ -118,31 +122,37 @@ export function HomeScreen() {
         <KpiTile value={String(activeTournaments)} label="Torneos activos" color={colors.red} />
       </View>
 
-      <Card>
-        <View style={styles.cardHeaderRow}>
-          <Text style={styles.cardTitle}>VOLUMEN SEMANAL</Text>
-        </View>
-        {volume.data?.weeks.length ? (
-          <BarChart data={volume.data.weeks.map((w) => ({ label: w.week.slice(5), value: w.meters }))} />
-        ) : (
-          <EmptyState message="Aún no hay sesiones registradas para graficar volumen." />
-        )}
-      </Card>
+      <Pressable onPress={() => navigation.navigate('Sesiones')}>
+        <Card>
+          <View style={styles.cardHeaderRow}>
+            <Text style={styles.cardTitle}>VOLUMEN SEMANAL</Text>
+            <Text style={styles.cardLink}>Ver sesiones ›</Text>
+          </View>
+          {volume.data?.weeks.length ? (
+            <BarChart data={volume.data.weeks.map((w) => ({ label: w.week.slice(5), value: w.meters }))} />
+          ) : (
+            <EmptyState message="Aún no hay sesiones registradas para graficar volumen." />
+          )}
+        </Card>
+      </Pressable>
 
-      <Card>
-        <View style={styles.cardHeaderRow}>
-          <Text style={styles.cardTitle}>CONFIRMACIONES POR SESIÓN</Text>
-        </View>
-        <View style={styles.kpiRow}>
-          <KpiTile value={String(attendanceTotals.confirmed)} label="Confirmados/asistidos" color={colors.green} />
-          <KpiTile value={String(attendanceTotals.notConfirmed)} label="No confirmados" color={colors.red} />
-        </View>
-        {confirmationsBySession.length ? (
-          <GroupedBarChart data={confirmationsBySession} legendA="Confirmados/asistidos" legendB="No confirmados" />
-        ) : (
-          <EmptyState message="Aún no hay sesiones con nadadores asignados." />
-        )}
-      </Card>
+      <Pressable onPress={() => navigation.navigate('Reportes')}>
+        <Card>
+          <View style={styles.cardHeaderRow}>
+            <Text style={styles.cardTitle}>CONFIRMACIONES POR SESIÓN</Text>
+            <Text style={styles.cardLink}>Ver reportes ›</Text>
+          </View>
+          <View style={styles.kpiRow}>
+            <KpiTile value={String(attendanceTotals.confirmed)} label="Confirmados/asistidos" color={colors.green} />
+            <KpiTile value={String(attendanceTotals.notConfirmed)} label="No confirmados" color={colors.red} />
+          </View>
+          {confirmationsBySession.length ? (
+            <GroupedBarChart data={confirmationsBySession} legendA="Confirmados/asistidos" legendB="No confirmados" />
+          ) : (
+            <EmptyState message="Aún no hay sesiones con nadadores asignados." />
+          )}
+        </Card>
+      </Pressable>
 
       <View style={styles.cardHeaderRow}>
         <Text style={styles.cardTitle}>CONFIRMACIONES DE HOY</Text>
@@ -176,9 +186,11 @@ const styles = StyleSheet.create({
   nextLabel: { fontFamily: fonts.barlowSemiBold, fontSize: 12, color: colors.white, letterSpacing: 1.5, opacity: 0.85 },
   nextTitle: { fontFamily: fonts.oswaldBold, fontSize: 24, color: colors.white, marginTop: 6 },
   nextMeta: { fontFamily: fonts.barlowRegular, fontSize: 14, color: colors.white, opacity: 0.9, marginTop: 2 },
+  nextLink: { fontFamily: fonts.barlowSemiBold, fontSize: 13, color: colors.white, opacity: 0.9, marginTop: 10 },
   kpiRow: { flexDirection: 'row', gap: 10 },
   cardHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
   cardTitle: { fontFamily: fonts.oswaldSemiBold, fontSize: 16, color: colors.navy, letterSpacing: 0.5 },
+  cardLink: { fontFamily: fonts.oswaldSemiBold, fontSize: 12, color: colors.blueAccent },
   memberRow: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.surface, borderRadius: radii.cardSm, padding: 11 },
   memberName: { flex: 1, fontFamily: fonts.barlowSemiBold, fontSize: 14.5, color: colors.navy },
 });
