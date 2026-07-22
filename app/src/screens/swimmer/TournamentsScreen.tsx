@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ScreenLayout } from '../../components/ui/ScreenLayout';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { useTournaments, useToggleMyParticipation, type Tournament } from '../../api/hooks/useTournaments';
 import { colors, fonts, radii, shadows } from '../../theme/tokens';
+import type { RootStackParamList } from '../../navigation/types';
 
 const MONTHS = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
 
@@ -35,10 +38,12 @@ export function TournamentsScreen() {
 }
 
 function TournamentRow({ tournament }: { tournament: Tournament }) {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const toggle = useToggleMyParticipation(tournament.id);
   const [attending, setAttending] = useState(false);
 
-  const onToggle = () => {
+  const onToggle = (e: { stopPropagation?: () => void }) => {
+    e.stopPropagation?.();
     const next = !attending;
     setAttending(next);
     toggle.mutate(next ? 'participo' : 'inscrito');
@@ -47,7 +52,7 @@ function TournamentRow({ tournament }: { tournament: Tournament }) {
   const d = tournament.fecha ? parseIsoDate(tournament.fecha) : null;
 
   return (
-    <View style={styles.row}>
+    <Pressable style={styles.row} onPress={() => navigation.navigate('TournamentDetail', { tournamentId: tournament.id })}>
       <View style={styles.dateBox}>
         <Text style={styles.dateDay}>{d ? String(d.getDate()).padStart(2, '0') : '--'}</Text>
         <Text style={styles.dateMonth}>{d ? MONTHS[d.getMonth()] : ''}</Text>
@@ -65,7 +70,7 @@ function TournamentRow({ tournament }: { tournament: Tournament }) {
           </Text>
         </Pressable>
       </View>
-    </View>
+    </Pressable>
   );
 }
 

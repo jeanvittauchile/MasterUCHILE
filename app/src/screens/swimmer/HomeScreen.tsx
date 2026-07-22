@@ -157,19 +157,24 @@ export function HomeScreen() {
         <KpiTile value={String(pbCount)} label="PBs del ciclo" color={colors.red} />
       </View>
 
-      <Card>
-        <Text style={styles.cardTitle}>PRÓXIMO TORNEO</Text>
-        {nextTournament ? (
-          <>
-            <Text style={styles.tournamentName}>{nextTournament.nombre}</Text>
-            <Text style={styles.tournamentMeta}>
-              {nextTournament.fecha ? shortDate(nextTournament.fecha) : '—'} · {nextTournament.lugar ?? '—'}
-            </Text>
-          </>
-        ) : (
-          <Text style={styles.tournamentMeta}>No hay torneos programados por ahora.</Text>
-        )}
-      </Card>
+      <Pressable
+        disabled={!nextTournament}
+        onPress={() => nextTournament && navigation.navigate('TournamentDetail', { tournamentId: nextTournament.id })}
+      >
+        <Card>
+          <Text style={styles.cardTitle}>PRÓXIMO TORNEO</Text>
+          {nextTournament ? (
+            <>
+              <Text style={styles.tournamentName}>{nextTournament.nombre}</Text>
+              <Text style={styles.tournamentMeta}>
+                {nextTournament.fecha ? shortDate(nextTournament.fecha) : '—'} · {nextTournament.lugar ?? '—'}
+              </Text>
+            </>
+          ) : (
+            <Text style={styles.tournamentMeta}>No hay torneos programados por ahora.</Text>
+          )}
+        </Card>
+      </Pressable>
 
       <Pressable onPress={() => navigation.navigate('Sesiones')}>
         <Card>
