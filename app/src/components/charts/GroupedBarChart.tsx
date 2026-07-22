@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useRef, useState } from 'react';
 import { Pressable, Text, View, type GestureResponderEvent, type LayoutChangeEvent } from 'react-native';
 import Svg, { Rect } from 'react-native-svg';
 import { colors, fonts } from '../../theme/tokens';
@@ -28,7 +28,9 @@ export function GroupedBarChart({
   legendB?: string;
   onBarPress?: (datum: GroupedBarDatum, index: number) => void;
 }) {
+  const containerRef = useRef<View>(null);
   const [chartWidth, setChartWidth] = useState(0);
+  const [containerPageX, setContainerPageX] = useState(0);
 
   if (!data.length) return null;
   const max = Math.max(...data.map((d) => Math.max(d.a, d.b)), 1);
@@ -36,11 +38,19 @@ export function GroupedBarChart({
   const barGap = 3;
   const barWidth = (groupWidth - 8 - barGap) / 2;
 
-  // El onPress nativo de los <Rect> del SVG usa el responder de RN, que no dispara en
-  // web/PWA. En su lugar se calcula qué barra corresponde al X del toque sobre este overlay.
+  const handleLayout = (e: LayoutChangeEvent) => {
+    setChartWidth(e.nativeEvent.layout.width);
+    // En react-native-web el evento de tap no trae locationX (ver handlePress), así que
+    // medimos el offset del contenedor en la página para poder derivarlo de pageX.
+    (containerRef.current as unknown as { measure?: (cb: (x: number, y: number, w: number, h: number, pageX: number) => void) => void })
+      ?.measure?.((_x, _y, _w, _h, pageX) => setContainerPageX(pageX));
+  };
+
   const handlePress = (evt: GestureResponderEvent) => {
     if (!onBarPress || !chartWidth) return;
-    const index = Math.min(data.length - 1, Math.max(0, Math.floor((evt.nativeEvent.locationX / chartWidth) * data.length)));
+    const native = evt.nativeEvent as unknown as { locationX?: number; pageX?: number };
+    const relativeX = native.locationX ?? (native.pageX ?? 0) - containerPageX;
+    const index = Math.min(data.length - 1, Math.max(0, Math.floor((relativeX / chartWidth) * data.length)));
     onBarPress(data[index], index);
   };
 
@@ -57,8 +67,9 @@ export function GroupedBarChart({
         </View>
       </View>
       <Pressable
+        ref={containerRef}
         style={{ height, width: '100%' }}
-        onLayout={(e: LayoutChangeEvent) => setChartWidth(e.nativeEvent.layout.width)}
+        onLayout={handleLayout}
         onPress={onBarPress ? handlePress : undefined}
       >
         <Svg width="100%" height="100%" viewBox={`0 0 ${data.length * groupWidth} 100`} preserveAspectRatio="none">
